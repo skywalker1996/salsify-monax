@@ -214,12 +214,13 @@ int main( int argc, char *argv[] )
   poller.add_action( Poller::Action( socket, Direction::In,
     [&]()
     {
+    
       /* wait for next UDP datagram */
       const auto new_fragment = socket.recv();
 
       /* parse into Packet */
       const Packet packet { new_fragment.payload };
-
+      // cout<<"packet_send_timestamp = "<<packet.packet_send_timestamp()<<endl;
       if ( packet.frame_no() < next_frame_no ) {
         /* we're not interested in this anymore */
         return ResultType::Continue;
@@ -244,7 +245,7 @@ int main( int argc, char *argv[] )
 
       /* add to current frame */
       if ( fragmented_frames.count( packet.frame_no() ) ) {
-        fragmented_frames.at( packet.frame_no() ).add_packet( packet );
+         .at( packet.frame_no() ).add_packet( packet );
       } else {
         /*
           This was judged "too fancy" by the Code Review Board of Dec. 29, 2016.

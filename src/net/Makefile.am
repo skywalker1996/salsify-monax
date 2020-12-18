@@ -8,4 +8,5 @@ libnet_a_SOURCES = address.hh address.cc \
 	socketpair.hh socketpair.cc \
 	packet.hh packet.cc \
 	poller.hh poller.cc \
+	monax.h monax.cpp
 	pacer.hh

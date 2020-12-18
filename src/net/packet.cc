@@ -29,10 +29,12 @@
 #include <string>
 #include <algorithm>
 #include <vector>
+#include <chrono>
 
 #include "packet.hh"
 
 using namespace std;
+using namespace std::chrono;
 
 string Packet::put_header_field( const uint16_t n )
 {
@@ -62,6 +64,8 @@ Packet::Packet( const vector<uint8_t> & whole_frame,
                 const uint32_t frame_no,
                 const uint16_t fragment_no,
                 const uint16_t time_since_last,
+                const uint32_t frame_encfinish_timestamp,
+                const uint32_t packet_send_timestamp,
                 size_t & next_fragment_start )
   : valid_( true ),
     connection_id_( connection_id ),
@@ -71,8 +75,10 @@ Packet::Packet( const vector<uint8_t> & whole_frame,
     fragment_no_( fragment_no ),
     fragments_in_this_frame_( 0 ), /* temp value */
     time_since_last_( time_since_last ),
+    frame_encfinish_timestamp_( frame_encfinish_timestamp ),
+    packet_send_timestamp_( packet_send_timestamp ),
     payload_()
-{
+{    
   assert( not whole_frame.empty() );
 
   size_t first_byte = MAXIMUM_PAYLOAD * fragment_no;
@@ -96,7 +102,9 @@ Packet::Packet( const Chunk & str )
     fragment_no_( str( 14, 2 ).le16() ),
     fragments_in_this_frame_( str( 16, 2 ).le16() ),
     time_since_last_( str( 18, 4 ).le32() ),
-    payload_( str( 22 ).to_string() )
+    frame_encfinish_timestamp_( str(22, 4).le32() ),
+    packet_send_timestamp_( str(26, 4).le32() ),
+    payload_( str( 30 ).to_string() )
 {
   if ( fragment_no_ >= fragments_in_this_frame_ ) {
     throw runtime_error( "invalid packet: fragment_no_ >= fragments_in_this_frame" );
@@ -117,6 +125,8 @@ Packet::Packet()
     fragment_no_(),
     fragments_in_this_frame_(),
     time_since_last_(),
+    frame_encfinish_timestamp_(),
+    packet_send_timestamp_(),
     payload_()
 {}
 
@@ -132,6 +142,8 @@ string Packet::to_string() const
        + put_header_field( fragment_no_ )
        + put_header_field( fragments_in_this_frame_ )
        + put_header_field( time_since_last_ )
+       + put_header_field( frame_encfinish_timestamp_)
+       + put_header_field( packet_send_timestamp_ )
        + payload_;
 }
 
@@ -147,21 +159,23 @@ FragmentedFrame::FragmentedFrame( const uint16_t connection_id,
                                   const uint32_t target_state,
                                   const uint32_t frame_no,
                                   const uint32_t time_since_last,
+                                  const uint32_t frame_encfinish_timestamp,
                                   const vector<uint8_t> & whole_frame )
   : connection_id_( connection_id ),
     source_state_( source_state ),
     target_state_( target_state ),
     frame_no_( frame_no ),
+    frame_encfinish_timestamp_(frame_encfinish_timestamp),
     fragments_in_this_frame_(),
     fragments_(),
     remaining_fragments_( 0 )
 {
   size_t next_fragment_start = 0;
 
-  for ( uint16_t fragment_no = 0; next_fragment_start < whole_frame.size();
-        fragment_no++ ) {
+  for ( uint16_t fragment_no = 0; next_fragment_start < whole_frame.size(); fragment_no++ ) {
+    uint32_t packet_send_timestamp = static_cast<uint32_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     fragments_.emplace_back( whole_frame, connection_id, source_state_, target_state_,
-                             frame_no, fragment_no, 0, next_fragment_start );
+                             frame_no, fragment_no, 0, frame_encfinish_timestamp,packet_send_timestamp, next_fragment_start );
   }
 
   fragments_.front().set_time_to_next( time_since_last );
@@ -183,7 +197,8 @@ FragmentedFrame::FragmentedFrame( const uint16_t connection_id,
     frame_no_( packet.frame_no() ),
     fragments_in_this_frame_( packet.fragments_in_this_frame() ),
     fragments_( packet.fragments_in_this_frame() ),
-    remaining_fragments_( packet.fragments_in_this_frame() )
+    remaining_fragments_( packet.fragments_in_this_frame() ),
+    frame_encfinish_timestamp_(packet.frame_encfinish_timestamp())
 {
   sanity_check( packet );
 
@@ -291,7 +306,7 @@ string FragmentedFrame::partial_frame() const
 AckPacket::AckPacket( const uint16_t connection_id, const uint32_t frame_no,
                       const uint16_t fragment_no, const uint32_t avg_delay,
                       const uint32_t current_state, deque<uint32_t> complete_states )
-  : connection_id_( connection_id ), frame_no_( frame_no ),
+  : connection_id_(   ), frame_no_( frame_no ),
     fragment_no_( fragment_no ), avg_delay_( avg_delay ),
     current_state_( current_state ), complete_states_( complete_states )
 {}
