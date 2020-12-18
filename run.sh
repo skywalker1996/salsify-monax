@@ -1,6 +1,6 @@
 ./src/salsify/salsify-receiver 9090 1280 720 >log/recv.info 2>&1 &
 
-nohup ffmpeg -re -i ../demo.mp4 -f v4l2 -s 1280x720 /dev/video0 &
+nohup ffmpeg -re -i /home/librah/Videos/demo.mp4 -f v4l2 -s 1280x720 /dev/video0 &
 
 sleep 2s
 

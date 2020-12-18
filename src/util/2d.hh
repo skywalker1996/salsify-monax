@@ -66,7 +66,7 @@ public:
 
     // Seems like when copying a TwoD, copying the potentially
     // incorrect pointers is never the right thing to do
-    const Context & operator=( const Context & ) { return *this; }
+    const Context & operator=( const Context & ) = delete;
   };
 
   template< typename... Targs >
