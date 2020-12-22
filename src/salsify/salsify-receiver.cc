@@ -201,6 +201,9 @@ int main( int argc, char *argv[] )
   /* EWMA */
   AverageInterPacketDelay avg_delay;
 
+  /*end to end delay */
+  uint32_t frame_push_timestamp_last;
+
   /* decoder states */
   uint32_t current_state = player.current_decoder().get_hash().hash();
   const uint32_t initial_state = current_state;
@@ -221,8 +224,9 @@ int main( int argc, char *argv[] )
       const Packet packet { new_fragment.payload };
 
       uint32_t now_t = static_cast<uint32_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-      uint32_t one_way_delay = now_t - packet.packet_send_timestamp();
-      // cout << "one way dealy = " << one_way_delay << endl;
+
+      uint32_t packey_one_way_delay = now_t - packet.packet_send_timestamp();
+      // cout << "packet level one way dealy = " << packey_one_way_delay << endl;
 
       if ( packet.frame_no() < next_frame_no ) {
         /* we're not interested in this anymore */
@@ -234,6 +238,12 @@ int main( int argc, char *argv[] )
            display it and move on to the next frame */
         cerr << "got a packet for frame #" << packet.frame_no()
              << ", display previous frame(s)." << endl;
+        
+        auto frame_one_way_delay = now_t - frame_push_timestamp_last;
+
+        // cout << "======================================================" << endl;
+        // cout << "frame level one way dealy = " << frame_one_way_delay << endl;
+        // cout << "======================================================" << endl;
 
         for ( size_t i = next_frame_no; i < packet.frame_no(); i++ ) {
           if ( fragmented_frames.count( i ) == 0 ) continue;
@@ -298,6 +308,11 @@ int main( int argc, char *argv[] )
 
         // here we apply the frame
         enqueue_frame( player, fragment.frame() );
+        
+        auto frame_one_way_delay = now_t - frame_push_timestamp_last;
+        // cout << "======================================================" << endl;
+        // cout << "frame level one way dealy = " << frame_one_way_delay << endl;
+        // cout << "======================================================" << endl;
 
         // state "after" applying the frame
         current_state = player.current_decoder().minihash();
@@ -328,6 +343,8 @@ int main( int argc, char *argv[] )
              << " <mem = " << procinfo::memory_usage() << ">\n";
         next_mem_usage_report = now + 5s;
       }
+
+      frame_push_timestamp_last = packet.frame_push_timestamp();
 
       return ResultType::Continue;
     },
