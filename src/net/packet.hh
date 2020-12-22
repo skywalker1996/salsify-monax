@@ -50,9 +50,6 @@ private:
   uint16_t fragment_no_;
   uint16_t fragments_in_this_frame_;
   uint32_t time_since_last_; /* microseconds */
-
-  /*new content*/
-  uint32_t frame_encfinish_timestamp_;  //microseconds
   uint32_t packet_send_timestamp_;  //microseconds
 
   std::string payload_;
@@ -73,11 +70,7 @@ public:
   uint16_t fragment_no() const { return fragment_no_; }
   uint16_t fragments_in_this_frame() const { return fragments_in_this_frame_; }
   uint32_t time_since_last() const { return time_since_last_; }
-  
-  /*new content*/
-  uint32_t frame_encfinish_timestamp() const { return frame_encfinish_timestamp_;}
   uint32_t packet_send_timestamp() const { return packet_send_timestamp_; } 
-
   const std::string & payload() const { return payload_; }
 
   /* construct outgoing Packet */
@@ -88,7 +81,6 @@ public:
           const uint32_t frame_no,
           const uint16_t fragment_no,
           const uint16_t time_to_next,
-          const uint32_t frame_encfinish_timestamp,
           const uint32_t packet_send_timestamp,
           size_t & next_fragment_start );
 
@@ -113,8 +105,6 @@ private:
   uint32_t target_state_;
   uint32_t frame_no_;
   uint16_t fragments_in_this_frame_;
-  //视频帧编码完成的时间戳
-  uint32_t frame_encfinish_timestamp_;
 
   std::vector<Packet> fragments_;
 
@@ -127,7 +117,6 @@ public:
                    const uint32_t target_state,
                    const uint32_t frame_no,
                    const uint32_t time_to_next_frame,
-                   const uint32_t frame_encfinish_timestamp,
                    const std::vector<uint8_t> & whole_frame );
 
   /* construct incoming FragmentedFrame from a Packet */
@@ -150,7 +139,6 @@ public:
   uint32_t target_state() const { return target_state_; }
   uint32_t frame_no() const { return frame_no_; }
   uint16_t fragments_in_this_frame() const { return fragments_in_this_frame_; }
-  uint32_t frame_encfinish_timestamp() const { return frame_encfinish_timestamp_;}
   std::string frame() const;
   std::string partial_frame() const;
   const std::vector<Packet> & packets() const;
@@ -166,7 +154,6 @@ public:
       target_state_( other.target_state_ ),
       frame_no_( other.frame_no_ ),
       fragments_in_this_frame_( other.fragments_in_this_frame_ ),
-      frame_encfinish_timestamp_(other.frame_encfinish_timestamp_),
       fragments_( move( other.fragments_ ) ),
       remaining_fragments_( other.remaining_fragments_ )
   {}

@@ -53,7 +53,6 @@
 #include "camera.hh"
 #include "pacer.hh"
 #include "procinfo.hh"
-#include "monax.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -133,7 +132,7 @@ EncodeOutput do_encode_job( EncodeJob && encode_job )
   uint32_t source_minihash = encode_job.encoder.minihash();
 
   const auto encode_beginning = system_clock::now();
- 
+
   uint8_t quantizer_in_use = 0;
 
   switch ( encode_job.mode ) {
@@ -188,7 +187,7 @@ uint64_t ack_seq_no( const AckPacket & ack,
 }
 
 enum class OperationMode
-{  
+{
   S1, S2, Conventional
 };
 
@@ -214,8 +213,6 @@ int main( int argc, char *argv[] )
     { "log-mem-usage", no_argument,       nullptr, 'M' },
     { 0, 0, 0, 0 }
   };
-
-  Monax CC_Monax(5, 0.2, 1.0, 0.2, 0.2, 30.0);
 
   while ( true ) {
     const int opt = getopt_long( argc, argv, "d:p:m:u:", command_line_options, nullptr );
@@ -252,12 +249,12 @@ int main( int argc, char *argv[] )
     }
   }
 
-  if ( optind + 2 >= argc  ) {
+  if ( optind + 2 >= argc ) {
     usage( argv[ 0 ] );
     return EXIT_FAILURE;
   }
 
-  /* construct Socket for v datagrams */
+  /* construct Socket for outgoing datagrams */
   UDPSocket socket;
   socket.connect( Address( argv[ optind ], argv[ optind + 1 ] ) );
   socket.set_timestamps();
@@ -358,13 +355,15 @@ int main( int argc, char *argv[] )
       }
 
       /* let's cleanup the stored encoders based on the lastest ack */
-      if ( receiver_last_acked_state.initialized() and receiver_last_acked_state.get() != initial_state and
+      if ( receiver_last_acked_state.initialized() and
+           receiver_last_acked_state.get() != initial_state and
            encoders.count( receiver_last_acked_state.get() ) ) {
         // cleaning up
         auto it = encoder_states.begin();
 
         while ( it != encoder_states.end() ) {
-          if ( *it != receiver_last_acked_state.get() and *it != receiver_assumed_state.get() ) {
+          if ( *it != receiver_last_acked_state.get() and
+               *it != receiver_assumed_state.get() ) {
             if ( find( next( it ), encoder_states.end(), *it ) == encoder_states.end() ) {
               encoders.erase( *it );
             }
@@ -401,12 +400,10 @@ int main( int argc, char *argv[] )
           selected_source_hash = receiver_complete_states.back();
         }
       }
-      //还没有收到接收端的反馈信息，也就是还没调用receiver_last_acked_state.reset
       else if ( not receiver_last_acked_state.initialized() ) {
         /* okay, we're not in 'conservative' mode */
         if ( not receiver_assumed_state.initialized() ) {
           /* okay, let's just encode as a keyframe */
-          //初始的时候还没有reset receiver_assumed_state
           selected_source_hash = initial_state;
         }
         else {
@@ -414,7 +411,6 @@ int main( int argc, char *argv[] )
           selected_source_hash = receiver_assumed_state.get();
         }
       }
-      //
       else {
         if ( encoders.count( receiver_last_acked_state.get() ) == 0 ) {
           /* it seems that the receiver is in an invalid state */
@@ -493,7 +489,6 @@ int main( int argc, char *argv[] )
       }
       else {
         /* try various quantizers */
-        //量化参数(QP)反映了空间细节压缩情况,如 QP 小,大部分的细节都会被保留，码率增大。QP 大，一些细节丢失，码率降低
         encode_jobs.emplace_back( "improve", raster, encoder, CONSTANT_QUANTIZER,
                                   increment_quantizer( last_quantizer, -17 ), 0 );
 
@@ -529,7 +524,7 @@ int main( int argc, char *argv[] )
   /* all encode jobs have finished */
   poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
     [&]()
-    { 
+    {
       /* whatever happens, encode_jobs will be empty after this block is done. */
       auto _ = finally(
         [&]()
@@ -612,34 +607,13 @@ int main( int argc, char *argv[] )
 
       last_quantizer = output.y_ac_qi;
 
-      uint32_t frame_encfinish_timestamp = static_cast<uint32_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-      
       FragmentedFrame ff { connection_id, output.source_minihash, target_minihash,
                            frame_no,
-                           static_cast<uint32_t>( duration_cast<microseconds>( system_clock::now() - last_sent).count() ),
-                           frame_encfinish_timestamp,
-                           output.frame};
-
-
-      
-
+                           static_cast<uint32_t>( duration_cast<microseconds>( system_clock::now() - last_sent ).count() ),
+                           output.frame };
       /* enqueue the packets to be sent */
       /* send 5x faster than packets are being received */
-
-
-        // CC_Monax.setRealRtt(12.0);
-        // CC_Monax.setDeliveryRate(30.0);
-        // CC_Monax.setFlightSize(100);
-        // CC_Monax.setSndPeriod(5);
-        // CC_Monax.setWndSize(30);
-        // CC_Monax.setSrtLossSeqStatus(1);
-
-        // CC_Monax.calcCCPara();
-        // std::cout << "CWND = " << CC_Monax.getWndSize() << std::endl;
-        // std::cout << "Period = " << CC_Monax.getSndPeriod() << std::endl;
-
       const unsigned int inter_send_delay = min( 2000u, max( 500u, avg_delay / 5 ) );
-      
       for ( const auto & packet : ff.packets() ) {
         pacer.push( packet.to_string(), inter_send_delay );
       }
