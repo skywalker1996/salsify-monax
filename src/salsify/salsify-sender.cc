@@ -607,9 +607,12 @@ int main( int argc, char *argv[] )
 
       last_quantizer = output.y_ac_qi;
 
+      uint32_t frame_push_timestamp = static_cast<uint32_t>( duration_cast<microseconds>( system_clock::now().time_since_epoch()).count() );
+
       FragmentedFrame ff { connection_id, output.source_minihash, target_minihash,
                            frame_no,
                            static_cast<uint32_t>( duration_cast<microseconds>( system_clock::now() - last_sent ).count() ),
+                           frame_push_timestamp,
                            output.frame };
       /* enqueue the packets to be sent */
       /* send 5x faster than packets are being received */
