@@ -5,7 +5,7 @@ Makefile
 Makefile.in
 *.log
 *.trs
-
+*.info
 /INSTALL
 /aclocal.m4
 /ar-lib
