@@ -220,6 +220,8 @@ int main( int argc, char *argv[] )
       /* wait for next UDP datagram */
       const auto new_fragment = socket.recv();
 
+      uint16_t frame_finish_state = 0;
+      auto ack_start = duration_cast<milliseconds>( system_clock::now().time_since_epoch() ).count();
       /* parse into Packet */
       const Packet packet { new_fragment.payload };
 
@@ -244,7 +246,7 @@ int main( int argc, char *argv[] )
         // cout << "======================================================" << endl;
         // cout << "frame level one way dealy = " << frame_one_way_delay << endl;
         // cout << "======================================================" << endl;
-
+        frame_finish_state = 1;
         for ( size_t i = next_frame_no; i < packet.frame_no(); i++ ) {
           if ( fragmented_frames.count( i ) == 0 ) continue;
 
@@ -315,6 +317,7 @@ int main( int argc, char *argv[] )
         // cout << "======================================================" << endl;
 
         // state "after" applying the frame
+        frame_finish_state = 1;
         current_state = player.current_decoder().minihash();
 
         if ( current_state == fragment.target_state() and
@@ -329,10 +332,10 @@ int main( int argc, char *argv[] )
       }
 
       avg_delay.add( new_fragment.timestamp_us, packet.time_since_last() );
-
+      uint32_t ack_delay = duration_cast<milliseconds>( system_clock::now().time_since_epoch() ).count() - ack_start;
       AckPacket( connection_id, packet.frame_no(), packet.fragment_no(),
-                 avg_delay.int_value(), current_state,
-                 complete_states ).sendto( socket, new_fragment.source_address );
+                 avg_delay.int_value(), current_state, packet.packet_send_timestamp(),
+                 ack_delay, frame_finish_state, complete_states ).sendto( socket, new_fragment.source_address );
 
       auto now = system_clock::now();
 

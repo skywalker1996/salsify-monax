@@ -598,3 +598,283 @@ Output #0, video4linux2,v4l2, to '/dev/video0':
 frame=    9 fps=0.0 q=-0.0 size=N/A time=00:00:00.37 bitrate=N/A speed=0.74x    frame=   21 fps= 21 q=-0.0 size=N/A time=00:00:00.87 bitrate=N/A speed=0.87x    frame=   33 fps= 22 q=-0.0 size=N/A time=00:00:01.37 bitrate=N/A speed=0.912x    frame=   45 fps= 22 q=-0.0 size=N/A time=00:00:01.87 bitrate=N/A speed=0.933x    frame=   57 fps= 23 q=-0.0 size=N/A time=00:00:02.37 bitrate=N/A speed=0.946x    frame=   69 fps= 23 q=-0.0 size=N/A time=00:00:02.87 bitrate=N/A speed=0.953x    frame=   81 fps= 23 q=-0.0 size=N/A time=00:00:03.37 bitrate=N/A speed=0.959x    frame=   93 fps= 23 q=-0.0 size=N/A time=00:00:03.87 bitrate=N/A speed=0.963x    frame=  105 fps= 23 q=-0.0 size=N/A time=00:00:04.37 bitrate=N/A speed=0.967x    frame=  117 fps= 23 q=-0.0 size=N/A time=00:00:04.87 bitrate=N/A speed=0.97x    frame=  129 fps= 23 q=-0.0 size=N/A time=00:00:05.38 bitrate=N/A speed=0.972x    frame=  141 fps= 23 q=-0.0 size=N/A time=00:00:05.88 bitrate=N/A speed=0.973x    frame=  154 fps= 24 q=-0.0 size=N/A time=00:00:06.42 bitrate=N/A speed=0.981x    frame=  166 fps= 24 q=-0.0 size=N/A time=00:00:06.92 bitrate=N/A speed=0.982x    frame=  178 fps= 24 q=-0.0 size=N/A time=00:00:07.42 bitrate=N/A speed=0.983x    frame=  190 fps= 24 q=-0.0 size=N/A time=00:00:07.92 bitrate=N/A speed=0.982x    frame=  202 fps= 24 q=-0.0 size=N/A time=00:00:08.42 bitrate=N/A speed=0.984x    frame=  213 fps= 24 q=-0.0 Lsize=N/A time=00:00:08.88 bitrate=N/A speed=0.983x    
 video:287550kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
 Exiting normally, received signal 15.
+ffmpeg version 4.2.4-1ubuntu0.1 Copyright (c) 2000-2020 the FFmpeg developers
+  built with gcc 9 (Ubuntu 9.3.0-10ubuntu2)
+  configuration: --prefix=/usr --extra-version=1ubuntu0.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-avresample --disable-filter=resample --enable-avisynth --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librsvg --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-nvenc --enable-chromaprint --enable-frei0r --enable-libx264 --enable-shared
+  libavutil      56. 31.100 / 56. 31.100
+  libavcodec     58. 54.100 / 58. 54.100
+  libavformat    58. 29.100 / 58. 29.100
+  libavdevice    58.  8.100 / 58.  8.100
+  libavfilter     7. 57.100 /  7. 57.100
+  libavresample   4.  0.  0 /  4.  0.  0
+  libswscale      5.  5.100 /  5.  5.100
+  libswresample   3.  5.100 /  3.  5.100
+  libpostproc    55.  5.100 / 55.  5.100
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/librah/Videos/demo.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+  Duration: 00:03:18.20, start: 0.000000, bitrate: 3121 kb/s
+    Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 3119 kb/s, 23.98 fps, 23.98 tbr, 24k tbn, 47.95 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> rawvideo (native))
+Press [q] to stop, [?] for help
+Output #0, video4linux2,v4l2, to '/dev/video0':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+    Stream #0:0(und): Video: rawvideo (I420 / 0x30323449), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 265155 kb/s, 23.98 fps, 23.98 tbn, 23.98 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+      encoder         : Lavc58.54.100 rawvideo
+frame=    9 fps=0.0 q=-0.0 size=N/A time=00:00:00.37 bitrate=N/A speed=0.738x    frame=   21 fps= 21 q=-0.0 size=N/A time=00:00:00.87 bitrate=N/A speed=0.862x    frame=   33 fps= 22 q=-0.0 size=N/A time=00:00:01.37 bitrate=N/A speed=0.901x    frame=   45 fps= 22 q=-0.0 size=N/A time=00:00:01.87 bitrate=N/A speed=0.921x    frame=   58 fps= 23 q=-0.0 size=N/A time=00:00:02.41 bitrate=N/A speed=0.951x    frame=   70 fps= 23 q=-0.0 size=N/A time=00:00:02.91 bitrate=N/A speed=0.956x    frame=   82 fps= 23 q=-0.0 size=N/A time=00:00:03.42 bitrate=N/A speed=0.962x    frame=   94 fps= 23 q=-0.0 size=N/A time=00:00:03.92 bitrate=N/A speed=0.966x    frame=  106 fps= 23 q=-0.0 size=N/A time=00:00:04.42 bitrate=N/A speed=0.969x    frame=  118 fps= 23 q=-0.0 size=N/A time=00:00:04.92 bitrate=N/A speed=0.971x    frame=  119 fps= 23 q=-0.0 Lsize=N/A time=00:00:04.96 bitrate=N/A speed=0.967x    
+video:160650kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+Exiting normally, received signal 15.
+ffmpeg version 4.2.4-1ubuntu0.1 Copyright (c) 2000-2020 the FFmpeg developers
+  built with gcc 9 (Ubuntu 9.3.0-10ubuntu2)
+  configuration: --prefix=/usr --extra-version=1ubuntu0.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-avresample --disable-filter=resample --enable-avisynth --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librsvg --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-nvenc --enable-chromaprint --enable-frei0r --enable-libx264 --enable-shared
+  libavutil      56. 31.100 / 56. 31.100
+  libavcodec     58. 54.100 / 58. 54.100
+  libavformat    58. 29.100 / 58. 29.100
+  libavdevice    58.  8.100 / 58.  8.100
+  libavfilter     7. 57.100 /  7. 57.100
+  libavresample   4.  0.  0 /  4.  0.  0
+  libswscale      5.  5.100 /  5.  5.100
+  libswresample   3.  5.100 /  3.  5.100
+  libpostproc    55.  5.100 / 55.  5.100
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/librah/Videos/demo.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+  Duration: 00:03:18.20, start: 0.000000, bitrate: 3121 kb/s
+    Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 3119 kb/s, 23.98 fps, 23.98 tbr, 24k tbn, 47.95 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> rawvideo (native))
+Press [q] to stop, [?] for help
+Output #0, video4linux2,v4l2, to '/dev/video0':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+    Stream #0:0(und): Video: rawvideo (I420 / 0x30323449), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 265155 kb/s, 23.98 fps, 23.98 tbn, 23.98 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+      encoder         : Lavc58.54.100 rawvideo
+frame=    9 fps=0.0 q=-0.0 size=N/A time=00:00:00.37 bitrate=N/A speed=0.749x    frame=   21 fps= 21 q=-0.0 size=N/A time=00:00:00.87 bitrate=N/A speed=0.869x    frame=   33 fps= 22 q=-0.0 size=N/A time=00:00:01.37 bitrate=N/A speed=0.911x    frame=   45 fps= 22 q=-0.0 size=N/A time=00:00:01.87 bitrate=N/A speed=0.932x    frame=   57 fps= 23 q=-0.0 size=N/A time=00:00:02.37 bitrate=N/A speed=0.943x    frame=   69 fps= 23 q=-0.0 size=N/A time=00:00:02.87 bitrate=N/A speed=0.951x    frame=   81 fps= 23 q=-0.0 size=N/A time=00:00:03.37 bitrate=N/A speed=0.957x    frame=   93 fps= 23 q=-0.0 size=N/A time=00:00:03.87 bitrate=N/A speed=0.962x    frame=  105 fps= 23 q=-0.0 size=N/A time=00:00:04.37 bitrate=N/A speed=0.964x    frame=  118 fps= 23 q=-0.0 size=N/A time=00:00:04.92 bitrate=N/A speed=0.974x    frame=  130 fps= 23 q=-0.0 size=N/A time=00:00:05.42 bitrate=N/A speed=0.976x    frame=  142 fps= 23 q=-0.0 size=N/A time=00:00:05.92 bitrate=N/A speed=0.978x    frame=  154 fps= 23 q=-0.0 size=N/A time=00:00:06.42 bitrate=N/A speed=0.978x    frame=  166 fps= 23 q=-0.0 size=N/A time=00:00:06.92 bitrate=N/A speed=0.979x    frame=  178 fps= 23 q=-0.0 size=N/A time=00:00:07.42 bitrate=N/A speed=0.979x    frame=  190 fps= 23 q=-0.0 size=N/A time=00:00:07.92 bitrate=N/A speed=0.98x    frame=  202 fps= 24 q=-0.0 size=N/A time=00:00:08.42 bitrate=N/A speed=0.981x    frame=  215 fps= 24 q=-0.0 size=N/A time=00:00:08.96 bitrate=N/A speed=0.985x    frame=  227 fps= 24 q=-0.0 size=N/A time=00:00:09.46 bitrate=N/A speed=0.985x    frame=  239 fps= 24 q=-0.0 size=N/A time=00:00:09.96 bitrate=N/A speed=0.986x    frame=  251 fps= 24 q=-0.0 size=N/A time=00:00:10.46 bitrate=N/A speed=0.986x    frame=  263 fps= 24 q=-0.0 size=N/A time=00:00:10.96 bitrate=N/A speed=0.986x    frame=  269 fps= 24 q=-0.0 Lsize=N/A time=00:00:11.21 bitrate=N/A speed=0.987x    
+video:363150kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+Exiting normally, received signal 15.
+ffmpeg version 4.2.4-1ubuntu0.1 Copyright (c) 2000-2020 the FFmpeg developers
+  built with gcc 9 (Ubuntu 9.3.0-10ubuntu2)
+  configuration: --prefix=/usr --extra-version=1ubuntu0.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-avresample --disable-filter=resample --enable-avisynth --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librsvg --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-nvenc --enable-chromaprint --enable-frei0r --enable-libx264 --enable-shared
+  libavutil      56. 31.100 / 56. 31.100
+  libavcodec     58. 54.100 / 58. 54.100
+  libavformat    58. 29.100 / 58. 29.100
+  libavdevice    58.  8.100 / 58.  8.100
+  libavfilter     7. 57.100 /  7. 57.100
+  libavresample   4.  0.  0 /  4.  0.  0
+  libswscale      5.  5.100 /  5.  5.100
+  libswresample   3.  5.100 /  3.  5.100
+  libpostproc    55.  5.100 / 55.  5.100
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/librah/Videos/demo.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+  Duration: 00:03:18.20, start: 0.000000, bitrate: 3121 kb/s
+    Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 3119 kb/s, 23.98 fps, 23.98 tbr, 24k tbn, 47.95 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> rawvideo (native))
+Press [q] to stop, [?] for help
+Output #0, video4linux2,v4l2, to '/dev/video0':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+    Stream #0:0(und): Video: rawvideo (I420 / 0x30323449), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 265155 kb/s, 23.98 fps, 23.98 tbn, 23.98 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+      encoder         : Lavc58.54.100 rawvideo
+frame=    9 fps=0.0 q=-0.0 size=N/A time=00:00:00.37 bitrate=N/A speed=0.742x    frame=   21 fps= 21 q=-0.0 size=N/A time=00:00:00.87 bitrate=N/A speed=0.868x    frame=   33 fps= 22 q=-0.0 size=N/A time=00:00:01.37 bitrate=N/A speed=0.908x    frame=   45 fps= 22 q=-0.0 size=N/A time=00:00:01.87 bitrate=N/A speed=0.93x    frame=   57 fps= 23 q=-0.0 size=N/A time=00:00:02.37 bitrate=N/A speed=0.944x    frame=   69 fps= 23 q=-0.0 size=N/A time=00:00:02.87 bitrate=N/A speed=0.953x    frame=   81 fps= 23 q=-0.0 size=N/A time=00:00:03.37 bitrate=N/A speed=0.958x    frame=   93 fps= 23 q=-0.0 size=N/A time=00:00:03.87 bitrate=N/A speed=0.963x    frame=  105 fps= 23 q=-0.0 size=N/A time=00:00:04.37 bitrate=N/A speed=0.965x    frame=  118 fps= 23 q=-0.0 size=N/A time=00:00:04.92 bitrate=N/A speed=0.975x    frame=  130 fps= 23 q=-0.0 size=N/A time=00:00:05.42 bitrate=N/A speed=0.977x    frame=  142 fps= 23 q=-0.0 size=N/A time=00:00:05.92 bitrate=N/A speed=0.978x    frame=  154 fps= 23 q=-0.0 size=N/A time=00:00:06.42 bitrate=N/A speed=0.978x    frame=  166 fps= 23 q=-0.0 size=N/A time=00:00:06.92 bitrate=N/A speed=0.979x    frame=  178 fps= 23 q=-0.0 size=N/A time=00:00:07.42 bitrate=N/A speed=0.98x    frame=  190 fps= 23 q=-0.0 size=N/A time=00:00:07.92 bitrate=N/A speed=0.98x    frame=  202 fps= 24 q=-0.0 size=N/A time=00:00:08.42 bitrate=N/A speed=0.981x    frame=  215 fps= 24 q=-0.0 size=N/A time=00:00:08.96 bitrate=N/A speed=0.986x    frame=  227 fps= 24 q=-0.0 size=N/A time=00:00:09.46 bitrate=N/A speed=0.987x    frame=  239 fps= 24 q=-0.0 size=N/A time=00:00:09.96 bitrate=N/A speed=0.987x    frame=  251 fps= 24 q=-0.0 size=N/A time=00:00:10.46 bitrate=N/A speed=0.987x    frame=  263 fps= 24 q=-0.0 size=N/A time=00:00:10.96 bitrate=N/A speed=0.988x    frame=  275 fps= 24 q=-0.0 size=N/A time=00:00:11.46 bitrate=N/A speed=0.987x    frame=  287 fps= 24 q=-0.0 size=N/A time=00:00:11.97 bitrate=N/A speed=0.988x    frame=  299 fps= 24 q=-0.0 size=N/A time=00:00:12.47 bitrate=N/A speed=0.988x    frame=  311 fps= 24 q=-0.0 size=N/A time=00:00:12.97 bitrate=N/A speed=0.988x    frame=  323 fps= 24 q=-0.0 size=N/A time=00:00:13.47 bitrate=N/A speed=0.988x    frame=  327 fps= 24 q=-0.0 Lsize=N/A time=00:00:13.63 bitrate=N/A speed=0.988x    
+video:441450kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+Exiting normally, received signal 15.
+ffmpeg version 4.2.4-1ubuntu0.1 Copyright (c) 2000-2020 the FFmpeg developers
+  built with gcc 9 (Ubuntu 9.3.0-10ubuntu2)
+  configuration: --prefix=/usr --extra-version=1ubuntu0.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-avresample --disable-filter=resample --enable-avisynth --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librsvg --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-nvenc --enable-chromaprint --enable-frei0r --enable-libx264 --enable-shared
+  libavutil      56. 31.100 / 56. 31.100
+  libavcodec     58. 54.100 / 58. 54.100
+  libavformat    58. 29.100 / 58. 29.100
+  libavdevice    58.  8.100 / 58.  8.100
+  libavfilter     7. 57.100 /  7. 57.100
+  libavresample   4.  0.  0 /  4.  0.  0
+  libswscale      5.  5.100 /  5.  5.100
+  libswresample   3.  5.100 /  3.  5.100
+  libpostproc    55.  5.100 / 55.  5.100
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/librah/Videos/demo.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+  Duration: 00:03:18.20, start: 0.000000, bitrate: 3121 kb/s
+    Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 3119 kb/s, 23.98 fps, 23.98 tbr, 24k tbn, 47.95 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> rawvideo (native))
+Press [q] to stop, [?] for help
+Output #0, video4linux2,v4l2, to '/dev/video0':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+    Stream #0:0(und): Video: rawvideo (I420 / 0x30323449), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 265155 kb/s, 23.98 fps, 23.98 tbn, 23.98 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+      encoder         : Lavc58.54.100 rawvideo
+frame=    9 fps=0.0 q=-0.0 size=N/A time=00:00:00.37 bitrate=N/A speed=0.736x    frame=   21 fps= 21 q=-0.0 size=N/A time=00:00:00.87 bitrate=N/A speed=0.859x    frame=   33 fps= 22 q=-0.0 size=N/A time=00:00:01.37 bitrate=N/A speed=0.904x    frame=   45 fps= 22 q=-0.0 size=N/A time=00:00:01.87 bitrate=N/A speed=0.924x    frame=   57 fps= 22 q=-0.0 size=N/A time=00:00:02.37 bitrate=N/A speed=0.937x    frame=   69 fps= 23 q=-0.0 size=N/A time=00:00:02.87 bitrate=N/A speed=0.946x    frame=   82 fps= 23 q=-0.0 size=N/A time=00:00:03.42 bitrate=N/A speed=0.964x    frame=   94 fps= 23 q=-0.0 size=N/A time=00:00:03.92 bitrate=N/A speed=0.967x    frame=  106 fps= 23 q=-0.0 size=N/A time=00:00:04.42 bitrate=N/A speed=0.97x    frame=  118 fps= 23 q=-0.0 size=N/A time=00:00:04.92 bitrate=N/A speed=0.973x    frame=  130 fps= 23 q=-0.0 size=N/A time=00:00:05.42 bitrate=N/A speed=0.975x    frame=  142 fps= 23 q=-0.0 size=N/A time=00:00:05.92 bitrate=N/A speed=0.977x    frame=  147 fps= 23 q=-0.0 Lsize=N/A time=00:00:06.13 bitrate=N/A speed=0.972x    
+video:198450kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+Exiting normally, received signal 15.
+ffmpeg version 4.2.4-1ubuntu0.1 Copyright (c) 2000-2020 the FFmpeg developers
+  built with gcc 9 (Ubuntu 9.3.0-10ubuntu2)
+  configuration: --prefix=/usr --extra-version=1ubuntu0.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-avresample --disable-filter=resample --enable-avisynth --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librsvg --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-nvenc --enable-chromaprint --enable-frei0r --enable-libx264 --enable-shared
+  libavutil      56. 31.100 / 56. 31.100
+  libavcodec     58. 54.100 / 58. 54.100
+  libavformat    58. 29.100 / 58. 29.100
+  libavdevice    58.  8.100 / 58.  8.100
+  libavfilter     7. 57.100 /  7. 57.100
+  libavresample   4.  0.  0 /  4.  0.  0
+  libswscale      5.  5.100 /  5.  5.100
+  libswresample   3.  5.100 /  3.  5.100
+  libpostproc    55.  5.100 / 55.  5.100
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/librah/Videos/demo.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+  Duration: 00:03:18.20, start: 0.000000, bitrate: 3121 kb/s
+    Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 3119 kb/s, 23.98 fps, 23.98 tbr, 24k tbn, 47.95 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> rawvideo (native))
+Press [q] to stop, [?] for help
+Output #0, video4linux2,v4l2, to '/dev/video0':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+    Stream #0:0(und): Video: rawvideo (I420 / 0x30323449), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 265155 kb/s, 23.98 fps, 23.98 tbn, 23.98 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+      encoder         : Lavc58.54.100 rawvideo
+frame=    9 fps=0.0 q=-0.0 size=N/A time=00:00:00.37 bitrate=N/A speed=0.75x    frame=   21 fps= 21 q=-0.0 size=N/A time=00:00:00.87 bitrate=N/A speed=0.875x    frame=   33 fps= 22 q=-0.0 size=N/A time=00:00:01.37 bitrate=N/A speed=0.916x    frame=   45 fps= 22 q=-0.0 size=N/A time=00:00:01.87 bitrate=N/A speed=0.934x    frame=   57 fps= 23 q=-0.0 size=N/A time=00:00:02.37 bitrate=N/A speed=0.943x    frame=   69 fps= 23 q=-0.0 size=N/A time=00:00:02.87 bitrate=N/A speed=0.95x    frame=   81 fps= 23 q=-0.0 size=N/A time=00:00:03.37 bitrate=N/A speed=0.957x    frame=   93 fps= 23 q=-0.0 size=N/A time=00:00:03.87 bitrate=N/A speed=0.962x    frame=  105 fps= 23 q=-0.0 size=N/A time=00:00:04.37 bitrate=N/A speed=0.965x    frame=  117 fps= 23 q=-0.0 size=N/A time=00:00:04.87 bitrate=N/A speed=0.968x    frame=  130 fps= 23 q=-0.0 size=N/A time=00:00:05.42 bitrate=N/A speed=0.977x    frame=  142 fps= 23 q=-0.0 size=N/A time=00:00:05.92 bitrate=N/A speed=0.978x    frame=  154 fps= 23 q=-0.0 size=N/A time=00:00:06.42 bitrate=N/A speed=0.98x    frame=  166 fps= 24 q=-0.0 size=N/A time=00:00:06.92 bitrate=N/A speed=0.981x    frame=  178 fps= 24 q=-0.0 size=N/A time=00:00:07.42 bitrate=N/A speed=0.982x    frame=  190 fps= 24 q=-0.0 size=N/A time=00:00:07.92 bitrate=N/A speed=0.983x    frame=  202 fps= 24 q=-0.0 size=N/A time=00:00:08.42 bitrate=N/A speed=0.983x    frame=  214 fps= 24 q=-0.0 size=N/A time=00:00:08.92 bitrate=N/A speed=0.984x    frame=  226 fps= 24 q=-0.0 size=N/A time=00:00:09.42 bitrate=N/A speed=0.984x    frame=  238 fps= 24 q=-0.0 size=N/A time=00:00:09.92 bitrate=N/A speed=0.984x    frame=  250 fps= 24 q=-0.0 size=N/A time=00:00:10.42 bitrate=N/A speed=0.984x    frame=  263 fps= 24 q=-0.0 size=N/A time=00:00:10.96 bitrate=N/A speed=0.988x    frame=  275 fps= 24 q=-0.0 size=N/A time=00:00:11.46 bitrate=N/A speed=0.988x    frame=  287 fps= 24 q=-0.0 size=N/A time=00:00:11.97 bitrate=N/A speed=0.988x    frame=  299 fps= 24 q=-0.0 size=N/A time=00:00:12.47 bitrate=N/A speed=0.989x    frame=  311 fps= 24 q=-0.0 size=N/A time=00:00:12.97 bitrate=N/A speed=0.989x    frame=  323 fps= 24 q=-0.0 size=N/A time=00:00:13.47 bitrate=N/A speed=0.988x    frame=  335 fps= 24 q=-0.0 size=N/A time=00:00:13.97 bitrate=N/A speed=0.989x    frame=  347 fps= 24 q=-0.0 size=N/A time=00:00:14.47 bitrate=N/A speed=0.989x    frame=  360 fps= 24 q=-0.0 size=N/A time=00:00:15.01 bitrate=N/A speed=0.991x    frame=  372 fps= 24 q=-0.0 size=N/A time=00:00:15.51 bitrate=N/A speed=0.991x    frame=  384 fps= 24 q=-0.0 size=N/A time=00:00:16.01 bitrate=N/A speed=0.991x    frame=  396 fps= 24 q=-0.0 size=N/A time=00:00:16.51 bitrate=N/A speed=0.991x    frame=  408 fps= 24 q=-0.0 size=N/A time=00:00:17.01 bitrate=N/A speed=0.991x    frame=  420 fps= 24 q=-0.0 size=N/A time=00:00:17.51 bitrate=N/A speed=0.991x    frame=  433 fps= 24 q=-0.0 size=N/A time=00:00:18.05 bitrate=N/A speed=0.993x    frame=  445 fps= 24 q=-0.0 size=N/A time=00:00:18.56 bitrate=N/A speed=0.993x    frame=  457 fps= 24 q=-0.0 size=N/A time=00:00:19.06 bitrate=N/A speed=0.993x    frame=  469 fps= 24 q=-0.0 size=N/A time=00:00:19.56 bitrate=N/A speed=0.993x    frame=  481 fps= 24 q=-0.0 size=N/A time=00:00:20.06 bitrate=N/A speed=0.993x    frame=  493 fps= 24 q=-0.0 size=N/A time=00:00:20.56 bitrate=N/A speed=0.992x    frame=  505 fps= 24 q=-0.0 size=N/A time=00:00:21.06 bitrate=N/A speed=0.993x    frame=  517 fps= 24 q=-0.0 size=N/A time=00:00:21.56 bitrate=N/A speed=0.993x    frame=  530 fps= 24 q=-0.0 size=N/A time=00:00:22.10 bitrate=N/A speed=0.994x    frame=  542 fps= 24 q=-0.0 size=N/A time=00:00:22.60 bitrate=N/A speed=0.994x    frame=  554 fps= 24 q=-0.0 size=N/A time=00:00:23.10 bitrate=N/A speed=0.994x    frame=  566 fps= 24 q=-0.0 size=N/A time=00:00:23.60 bitrate=N/A speed=0.994x    frame=  578 fps= 24 q=-0.0 size=N/A time=00:00:24.10 bitrate=N/A speed=0.994x    frame=  590 fps= 24 q=-0.0 size=N/A time=00:00:24.60 bitrate=N/A speed=0.994x    frame=  602 fps= 24 q=-0.0 size=N/A time=00:00:25.10 bitrate=N/A speed=0.994x    frame=  615 fps= 24 q=-0.0 size=N/A time=00:00:25.65 bitrate=N/A speed=0.995x    frame=  627 fps= 24 q=-0.0 size=N/A time=00:00:26.15 bitrate=N/A speed=0.995x    frame=  639 fps= 24 q=-0.0 size=N/A time=00:00:26.65 bitrate=N/A speed=0.995x    frame=  651 fps= 24 q=-0.0 size=N/A time=00:00:27.15 bitrate=N/A speed=0.995x    frame=  663 fps= 24 q=-0.0 size=N/A time=00:00:27.65 bitrate=N/A speed=0.995x    frame=  675 fps= 24 q=-0.0 size=N/A time=00:00:28.15 bitrate=N/A speed=0.995x    frame=  687 fps= 24 q=-0.0 size=N/A time=00:00:28.65 bitrate=N/A speed=0.995x    frame=  699 fps= 24 q=-0.0 size=N/A time=00:00:29.15 bitrate=N/A speed=0.995x    frame=  711 fps= 24 q=-0.0 size=N/A time=00:00:29.65 bitrate=N/A speed=0.995x    frame=  723 fps= 24 q=-0.0 size=N/A time=00:00:30.15 bitrate=N/A speed=0.995x    frame=  736 fps= 24 q=-0.0 size=N/A time=00:00:30.69 bitrate=N/A speed=0.996x    frame=  748 fps= 24 q=-0.0 size=N/A time=00:00:31.19 bitrate=N/A speed=0.996x    frame=  760 fps= 24 q=-0.0 size=N/A time=00:00:31.69 bitrate=N/A speed=0.996x    frame=  772 fps= 24 q=-0.0 size=N/A time=00:00:32.19 bitrate=N/A speed=0.995x    frame=  784 fps= 24 q=-0.0 size=N/A time=00:00:32.69 bitrate=N/A speed=0.995x    frame=  796 fps= 24 q=-0.0 size=N/A time=00:00:33.19 bitrate=N/A speed=0.995x    frame=  809 fps= 24 q=-0.0 size=N/A time=00:00:33.74 bitrate=N/A speed=0.996x    frame=  821 fps= 24 q=-0.0 size=N/A time=00:00:34.24 bitrate=N/A speed=0.996x    frame=  833 fps= 24 q=-0.0 size=N/A time=00:00:34.74 bitrate=N/A speed=0.996x    frame=  845 fps= 24 q=-0.0 size=N/A time=00:00:35.24 bitrate=N/A speed=0.996x    frame=  857 fps= 24 q=-0.0 size=N/A time=00:00:35.74 bitrate=N/A speed=0.996x    frame=  869 fps= 24 q=-0.0 size=N/A time=00:00:36.24 bitrate=N/A speed=0.996x    frame=  881 fps= 24 q=-0.0 size=N/A time=00:00:36.74 bitrate=N/A speed=0.996x    frame=  893 fps= 24 q=-0.0 size=N/A time=00:00:37.24 bitrate=N/A speed=0.996x    frame=  905 fps= 24 q=-0.0 size=N/A time=00:00:37.74 bitrate=N/A speed=0.996x    frame=  918 fps= 24 q=-0.0 size=N/A time=00:00:38.28 bitrate=N/A speed=0.997x    frame=  930 fps= 24 q=-0.0 size=N/A time=00:00:38.78 bitrate=N/A speed=0.997x    frame=  942 fps= 24 q=-0.0 size=N/A time=00:00:39.28 bitrate=N/A speed=0.997x    frame=  954 fps= 24 q=-0.0 size=N/A time=00:00:39.78 bitrate=N/A speed=0.997x    frame=  966 fps= 24 q=-0.0 size=N/A time=00:00:40.29 bitrate=N/A speed=0.997x    frame=  978 fps= 24 q=-0.0 size=N/A time=00:00:40.79 bitrate=N/A speed=0.997x    frame=  990 fps= 24 q=-0.0 size=N/A time=00:00:41.29 bitrate=N/A speed=0.996x    frame= 1002 fps= 24 q=-0.0 size=N/A time=00:00:41.79 bitrate=N/A speed=0.996x    frame= 1014 fps= 24 q=-0.0 size=N/A time=00:00:42.29 bitrate=N/A speed=0.996x    frame= 1027 fps= 24 q=-0.0 size=N/A time=00:00:42.83 bitrate=N/A speed=0.997x    frame= 1039 fps= 24 q=-0.0 size=N/A time=00:00:43.33 bitrate=N/A speed=0.997x    frame= 1051 fps= 24 q=-0.0 size=N/A time=00:00:43.83 bitrate=N/A speed=0.997x    frame= 1063 fps= 24 q=-0.0 size=N/A time=00:00:44.33 bitrate=N/A speed=0.997x    frame= 1075 fps= 24 q=-0.0 size=N/A time=00:00:44.83 bitrate=N/A speed=0.997x    frame= 1087 fps= 24 q=-0.0 size=N/A time=00:00:45.33 bitrate=N/A speed=0.997x    frame= 1099 fps= 24 q=-0.0 size=N/A time=00:00:45.83 bitrate=N/A speed=0.997x    frame= 1111 fps= 24 q=-0.0 size=N/A time=00:00:46.33 bitrate=N/A speed=0.997x    frame= 1123 fps= 24 q=-0.0 size=N/A time=00:00:46.83 bitrate=N/A speed=0.996x    frame= 1136 fps= 24 q=-0.0 size=N/A time=00:00:47.38 bitrate=N/A speed=0.997x    frame= 1148 fps= 24 q=-0.0 size=N/A time=00:00:47.88 bitrate=N/A speed=0.997x    frame= 1160 fps= 24 q=-0.0 size=N/A time=00:00:48.38 bitrate=N/A speed=0.997x    frame= 1172 fps= 24 q=-0.0 size=N/A time=00:00:48.88 bitrate=N/A speed=0.997x    frame= 1184 fps= 24 q=-0.0 size=N/A time=00:00:49.38 bitrate=N/A speed=0.997x    frame= 1196 fps= 24 q=-0.0 size=N/A time=00:00:49.88 bitrate=N/A speed=0.997x    frame= 1209 fps= 24 q=-0.0 size=N/A time=00:00:50.42 bitrate=N/A speed=0.998x    frame= 1221 fps= 24 q=-0.0 size=N/A time=00:00:50.92 bitrate=N/A speed=0.998x    frame= 1233 fps= 24 q=-0.0 size=N/A time=00:00:51.42 bitrate=N/A speed=0.998x    frame= 1245 fps= 24 q=-0.0 size=N/A time=00:00:51.92 bitrate=N/A speed=0.998x    frame= 1257 fps= 24 q=-0.0 size=N/A time=00:00:52.42 bitrate=N/A speed=0.998x    frame= 1269 fps= 24 q=-0.0 size=N/A time=00:00:52.92 bitrate=N/A speed=0.997x    frame= 1281 fps= 24 q=-0.0 size=N/A time=00:00:53.42 bitrate=N/A speed=0.998x    frame= 1293 fps= 24 q=-0.0 size=N/A time=00:00:53.92 bitrate=N/A speed=0.997x    frame= 1305 fps= 24 q=-0.0 size=N/A time=00:00:54.42 bitrate=N/A speed=0.997x    frame= 1317 fps= 24 q=-0.0 size=N/A time=00:00:54.92 bitrate=N/A speed=0.997x    frame= 1329 fps= 24 q=-0.0 size=N/A time=00:00:55.43 bitrate=N/A speed=0.997x    frame= 1342 fps= 24 q=-0.0 size=N/A time=00:00:55.97 bitrate=N/A speed=0.998x    frame= 1354 fps= 24 q=-0.0 size=N/A time=00:00:56.47 bitrate=N/A speed=0.998x    frame= 1366 fps= 24 q=-0.0 size=N/A time=00:00:56.97 bitrate=N/A speed=0.997x    frame= 1378 fps= 24 q=-0.0 size=N/A time=00:00:57.47 bitrate=N/A speed=0.997x    frame= 1390 fps= 24 q=-0.0 size=N/A time=00:00:57.97 bitrate=N/A speed=0.997x    frame= 1402 fps= 24 q=-0.0 size=N/A time=00:00:58.47 bitrate=N/A speed=0.997x    frame= 1415 fps= 24 q=-0.0 size=N/A time=00:00:59.01 bitrate=N/A speed=0.998x    frame= 1427 fps= 24 q=-0.0 size=N/A time=00:00:59.51 bitrate=N/A speed=0.998x    frame= 1439 fps= 24 q=-0.0 size=N/A time=00:01:00.01 bitrate=N/A speed=0.998x    frame= 1451 fps= 24 q=-0.0 size=N/A time=00:01:00.51 bitrate=N/A speed=0.998x    frame= 1463 fps= 24 q=-0.0 size=N/A time=00:01:01.01 bitrate=N/A speed=0.997x    frame= 1475 fps= 24 q=-0.0 size=N/A time=00:01:01.51 bitrate=N/A speed=0.997x    frame= 1487 fps= 24 q=-0.0 size=N/A time=00:01:02.02 bitrate=N/A speed=0.997x    frame= 1499 fps= 24 q=-0.0 size=N/A time=00:01:02.52 bitrate=N/A speed=0.997x    frame= 1511 fps= 24 q=-0.0 size=N/A time=00:01:03.02 bitrate=N/A speed=0.997x    frame= 1523 fps= 24 q=-0.0 size=N/A time=00:01:03.52 bitrate=N/A speed=0.997x    frame= 1536 fps= 24 q=-0.0 size=N/A time=00:01:04.06 bitrate=N/A speed=0.998x    frame= 1548 fps= 24 q=-0.0 size=N/A time=00:01:04.56 bitrate=N/A speed=0.998x    frame= 1560 fps= 24 q=-0.0 size=N/A time=00:01:05.06 bitrate=N/A speed=0.998x    frame= 1572 fps= 24 q=-0.0 size=N/A time=00:01:05.56 bitrate=N/A speed=0.998x    frame= 1584 fps= 24 q=-0.0 size=N/A time=00:01:06.06 bitrate=N/A speed=0.998x    frame= 1596 fps= 24 q=-0.0 Lsize=N/A time=00:01:06.56 bitrate=N/A speed=0.998x    
+video:2154600kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+Exiting normally, received signal 15.
+ffmpeg version 4.2.4-1ubuntu0.1 Copyright (c) 2000-2020 the FFmpeg developers
+  built with gcc 9 (Ubuntu 9.3.0-10ubuntu2)
+  configuration: --prefix=/usr --extra-version=1ubuntu0.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-avresample --disable-filter=resample --enable-avisynth --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librsvg --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-nvenc --enable-chromaprint --enable-frei0r --enable-libx264 --enable-shared
+  libavutil      56. 31.100 / 56. 31.100
+  libavcodec     58. 54.100 / 58. 54.100
+  libavformat    58. 29.100 / 58. 29.100
+  libavdevice    58.  8.100 / 58.  8.100
+  libavfilter     7. 57.100 /  7. 57.100
+  libavresample   4.  0.  0 /  4.  0.  0
+  libswscale      5.  5.100 /  5.  5.100
+  libswresample   3.  5.100 /  3.  5.100
+  libpostproc    55.  5.100 / 55.  5.100
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/librah/Videos/demo.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+  Duration: 00:03:18.20, start: 0.000000, bitrate: 3121 kb/s
+    Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 3119 kb/s, 23.98 fps, 23.98 tbr, 24k tbn, 47.95 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> rawvideo (native))
+Press [q] to stop, [?] for help
+Output #0, video4linux2,v4l2, to '/dev/video0':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+    Stream #0:0(und): Video: rawvideo (I420 / 0x30323449), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 265155 kb/s, 23.98 fps, 23.98 tbn, 23.98 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+      encoder         : Lavc58.54.100 rawvideo
+frame=    9 fps=0.0 q=-0.0 size=N/A time=00:00:00.37 bitrate=N/A speed=0.74x    frame=   21 fps= 21 q=-0.0 size=N/A time=00:00:00.87 bitrate=N/A speed=0.86x    frame=   33 fps= 22 q=-0.0 size=N/A time=00:00:01.37 bitrate=N/A speed=0.902x    frame=   45 fps= 22 q=-0.0 size=N/A time=00:00:01.87 bitrate=N/A speed=0.923x    frame=   57 fps= 22 q=-0.0 size=N/A time=00:00:02.37 bitrate=N/A speed=0.936x    frame=   70 fps= 23 q=-0.0 size=N/A time=00:00:02.91 bitrate=N/A speed=0.957x    frame=   82 fps= 23 q=-0.0 size=N/A time=00:00:03.42 bitrate=N/A speed=0.962x    frame=   94 fps= 23 q=-0.0 size=N/A time=00:00:03.92 bitrate=N/A speed=0.966x    frame=  106 fps= 23 q=-0.0 size=N/A time=00:00:04.42 bitrate=N/A speed=0.969x    frame=  118 fps= 23 q=-0.0 size=N/A time=00:00:04.92 bitrate=N/A speed=0.971x    frame=  130 fps= 23 q=-0.0 size=N/A time=00:00:05.42 bitrate=N/A speed=0.973x    frame=  142 fps= 23 q=-0.0 size=N/A time=00:00:05.92 bitrate=N/A speed=0.976x    frame=  154 fps= 23 q=-0.0 size=N/A time=00:00:06.42 bitrate=N/A speed=0.977x    frame=  166 fps= 23 q=-0.0 size=N/A time=00:00:06.92 bitrate=N/A speed=0.979x    frame=  178 fps= 23 q=-0.0 size=N/A time=00:00:07.42 bitrate=N/A speed=0.979x    frame=  190 fps= 23 q=-0.0 size=N/A time=00:00:07.92 bitrate=N/A speed=0.98x    frame=  203 fps= 24 q=-0.0 size=N/A time=00:00:08.46 bitrate=N/A speed=0.985x    frame=  215 fps= 24 q=-0.0 size=N/A time=00:00:08.96 bitrate=N/A speed=0.986x    frame=  227 fps= 24 q=-0.0 size=N/A time=00:00:09.46 bitrate=N/A speed=0.986x    frame=  239 fps= 24 q=-0.0 size=N/A time=00:00:09.96 bitrate=N/A speed=0.987x    frame=  251 fps= 24 q=-0.0 size=N/A time=00:00:10.46 bitrate=N/A speed=0.986x    frame=  263 fps= 24 q=-0.0 size=N/A time=00:00:10.96 bitrate=N/A speed=0.986x    frame=  275 fps= 24 q=-0.0 size=N/A time=00:00:11.46 bitrate=N/A speed=0.987x    frame=  287 fps= 24 q=-0.0 size=N/A time=00:00:11.97 bitrate=N/A speed=0.987x    frame=  299 fps= 24 q=-0.0 size=N/A time=00:00:12.47 bitrate=N/A speed=0.987x    frame=  311 fps= 24 q=-0.0 size=N/A time=00:00:12.97 bitrate=N/A speed=0.988x    frame=  323 fps= 24 q=-0.0 size=N/A time=00:00:13.47 bitrate=N/A speed=0.988x    frame=  336 fps= 24 q=-0.0 size=N/A time=00:00:14.01 bitrate=N/A speed=0.991x    frame=  348 fps= 24 q=-0.0 size=N/A time=00:00:14.51 bitrate=N/A speed=0.991x    frame=  360 fps= 24 q=-0.0 size=N/A time=00:00:15.01 bitrate=N/A speed=0.991x    frame=  372 fps= 24 q=-0.0 size=N/A time=00:00:15.51 bitrate=N/A speed=0.991x    frame=  384 fps= 24 q=-0.0 size=N/A time=00:00:16.01 bitrate=N/A speed=0.992x    frame=  396 fps= 24 q=-0.0 size=N/A time=00:00:16.51 bitrate=N/A speed=0.992x    frame=  408 fps= 24 q=-0.0 size=N/A time=00:00:17.01 bitrate=N/A speed=0.992x    frame=  420 fps= 24 q=-0.0 size=N/A time=00:00:17.51 bitrate=N/A speed=0.992x    frame=  432 fps= 24 q=-0.0 size=N/A time=00:00:18.01 bitrate=N/A speed=0.992x    frame=  444 fps= 24 q=-0.0 size=N/A time=00:00:18.51 bitrate=N/A speed=0.992x    frame=  456 fps= 24 q=-0.0 size=N/A time=00:00:19.01 bitrate=N/A speed=0.992x    frame=  462 fps= 24 q=-0.0 Lsize=N/A time=00:00:19.26 bitrate=N/A speed=0.993x    
+video:623700kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+Exiting normally, received signal 15.
+ffmpeg version 4.2.4-1ubuntu0.1 Copyright (c) 2000-2020 the FFmpeg developers
+  built with gcc 9 (Ubuntu 9.3.0-10ubuntu2)
+  configuration: --prefix=/usr --extra-version=1ubuntu0.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-avresample --disable-filter=resample --enable-avisynth --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librsvg --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwavpack --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-nvenc --enable-chromaprint --enable-frei0r --enable-libx264 --enable-shared
+  libavutil      56. 31.100 / 56. 31.100
+  libavcodec     58. 54.100 / 58. 54.100
+  libavformat    58. 29.100 / 58. 29.100
+  libavdevice    58.  8.100 / 58.  8.100
+  libavfilter     7. 57.100 /  7. 57.100
+  libavresample   4.  0.  0 /  4.  0.  0
+  libswscale      5.  5.100 /  5.  5.100
+  libswresample   3.  5.100 /  3.  5.100
+  libpostproc    55.  5.100 / 55.  5.100
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/librah/Videos/demo.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+  Duration: 00:03:18.20, start: 0.000000, bitrate: 3121 kb/s
+    Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 3119 kb/s, 23.98 fps, 23.98 tbr, 24k tbn, 47.95 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> rawvideo (native))
+Press [q] to stop, [?] for help
+Output #0, video4linux2,v4l2, to '/dev/video0':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    title           : The Croods: A New Age
+    encoder         : Lavf58.29.100
+    Stream #0:0(und): Video: rawvideo (I420 / 0x30323449), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 265155 kb/s, 23.98 fps, 23.98 tbn, 23.98 tbc (default)
+    Metadata:
+      handler_name    : ISO Media file produced by Google Inc.
+      encoder         : Lavc58.54.100 rawvideo
+frame=    9 fps=0.0 q=-0.0 size=N/A time=00:00:00.37 bitrate=N/A speed=0.749x    frame=   21 fps= 21 q=-0.0 size=N/A time=00:00:00.87 bitrate=N/A speed=0.866x    frame=   33 fps= 22 q=-0.0 size=N/A time=00:00:01.37 bitrate=N/A speed=0.906x    frame=   45 fps= 22 q=-0.0 size=N/A time=00:00:01.87 bitrate=N/A speed=0.926x    frame=   57 fps= 23 q=-0.0 size=N/A time=00:00:02.37 bitrate=N/A speed=0.941x    frame=   69 fps= 23 q=-0.0 size=N/A time=00:00:02.87 bitrate=N/A speed=0.949x    frame=   81 fps= 23 q=-0.0 size=N/A time=00:00:03.37 bitrate=N/A speed=0.956x    frame=   93 fps= 23 q=-0.0 size=N/A time=00:00:03.87 bitrate=N/A speed=0.96x    frame=  106 fps= 23 q=-0.0 size=N/A time=00:00:04.42 bitrate=N/A speed=0.972x    frame=  118 fps= 23 q=-0.0 size=N/A time=00:00:04.92 bitrate=N/A speed=0.973x    frame=  130 fps= 23 q=-0.0 size=N/A time=00:00:05.42 bitrate=N/A speed=0.974x    frame=  142 fps= 23 q=-0.0 size=N/A time=00:00:05.92 bitrate=N/A speed=0.976x    frame=  154 fps= 23 q=-0.0 size=N/A time=00:00:06.42 bitrate=N/A speed=0.976x    frame=  166 fps= 23 q=-0.0 size=N/A time=00:00:06.92 bitrate=N/A speed=0.977x    frame=  178 fps= 23 q=-0.0 size=N/A time=00:00:07.42 bitrate=N/A speed=0.979x    frame=  191 fps= 24 q=-0.0 size=N/A time=00:00:07.96 bitrate=N/A speed=0.985x    frame=  203 fps= 24 q=-0.0 size=N/A time=00:00:08.46 bitrate=N/A speed=0.985x    frame=  213 fps= 24 q=-0.0 Lsize=N/A time=00:00:08.88 bitrate=N/A speed=0.982x    
+video:287550kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+Exiting normally, received signal 15.

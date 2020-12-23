@@ -306,10 +306,13 @@ string FragmentedFrame::partial_frame() const
 
 AckPacket::AckPacket( const uint16_t connection_id, const uint32_t frame_no,
                       const uint16_t fragment_no, const uint32_t avg_delay,
-                      const uint32_t current_state, deque<uint32_t> complete_states )
+                      const uint32_t current_state, const uint32_t packet_send_timestamp, 
+                      const uint32_t ack_delay, const uint16_t frame_finish_state, 
+                      std::deque<uint32_t> complete_states )
   : connection_id_( connection_id ), frame_no_( frame_no ),
     fragment_no_( fragment_no ), avg_delay_( avg_delay ),
-    current_state_( current_state ), complete_states_( complete_states )
+    current_state_( current_state ), packet_send_timestamp_(packet_send_timestamp),
+    ack_delay_(ack_delay), frame_finish_state_(frame_finish_state), complete_states_( complete_states )
 {}
 
 AckPacket::AckPacket( const Chunk & str )
@@ -318,10 +321,13 @@ AckPacket::AckPacket( const Chunk & str )
     fragment_no_( str( 6, 2 ).le16() ),
     avg_delay_( str( 8, 4 ).le32() ),
     current_state_( str( 12, 4 ).le32() ),
-    complete_states_( str( 16, 4 ).le32() )
+    packet_send_timestamp_(str( 16, 4 ).le32()),
+    ack_delay_( str( 20, 4 ).le32() ),
+    frame_finish_state_( str( 24, 2 ).le16() ),
+    complete_states_( str( 26, 4 ).le32() )
 {
   for ( size_t i = 0; i < complete_states_.size(); i++ ) {
-    complete_states_[ i ] = str( 20 + i * 4, 4 ).le32();
+    complete_states_[ i ] = str( 30 + i * 4, 4 ).le32();
   }
 }
 
@@ -331,7 +337,11 @@ std::string AckPacket::to_string()
                 + Packet::put_header_field( frame_no_ )
                 + Packet::put_header_field( fragment_no_ )
                 + Packet::put_header_field( avg_delay_ )
-                + Packet::put_header_field( current_state_ );
+                + Packet::put_header_field( current_state_ )
+                + Packet::put_header_field( packet_send_timestamp_ )
+                + Packet::put_header_field( ack_delay_ )
+                + Packet::put_header_field( frame_finish_state_ );
+
 
   packet += Packet::put_header_field( static_cast<uint32_t>( complete_states_.size() ) );
 

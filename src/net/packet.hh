@@ -75,6 +75,12 @@ public:
   uint32_t frame_push_timestamp() const { return frame_push_timestamp_; }
   const std::string & payload() const { return payload_; }
 
+  /* setters */
+  void set_packet_send_timestamp(const uint32_t t) { 
+    packet_send_timestamp_ = t;
+    return;
+  } 
+
   /* construct outgoing Packet */
   Packet( const std::vector<uint8_t> & whole_frame,
           const uint16_t connection_id,
@@ -173,14 +179,19 @@ private:
   uint32_t frame_no_;
   uint16_t fragment_no_;
   uint32_t avg_delay_;
-
   uint32_t current_state_;
+
+  uint32_t packet_send_timestamp_;
+  uint32_t ack_delay_;
+  uint16_t frame_finish_state_;
+
   std::deque<uint32_t> complete_states_;
 
 public:
   AckPacket( const uint16_t connection_id, const uint32_t frame_no,
              const uint16_t fragment_no, const uint32_t avg_delay,
-             const uint32_t current_state, std::deque<uint32_t> complete_states );
+             const uint32_t current_state, const uint32_t packet_send_timestamp, 
+             const uint32_t ack_delay, const uint16_t frame_finish_state, std::deque<uint32_t> complete_states );
 
   AckPacket( const Chunk & str );
 
@@ -193,8 +204,12 @@ public:
   uint32_t frame_no() const { return frame_no_; }
   uint16_t fragment_no() const { return fragment_no_; }
   uint32_t avg_delay() const { return avg_delay_; }
-
   uint32_t current_state() const { return current_state_; }
+
+  uint32_t packet_send_timestamp() const { return packet_send_timestamp_; }
+  uint32_t ack_delay() const { return ack_delay_; }
+  uint16_t frame_finish_state() const { return frame_finish_state_; }
+  
   std::deque<uint32_t> complete_states() const { return complete_states_; }
 };
 

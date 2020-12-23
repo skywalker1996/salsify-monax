@@ -683,6 +683,10 @@ int main( int argc, char *argv[] )
       receiver_last_acked_state.reset( ack.current_state() );
       receiver_complete_states = move( ack.complete_states() );
 
+      uint32_t now = duration_cast<milliseconds>( system_clock::now().time_since_epoch() ).count();
+      uint32_t RTT = now - ack.packet_send_timestamp() - ack.ack_delay();
+      cout << "RTT = " << RTT << endl;
+
       return ResultType::Continue;
     } )
   );
@@ -694,7 +698,13 @@ int main( int argc, char *argv[] )
         while ( pacer.ms_until_due() == 0 ) {
           assert( not pacer.empty() );
 
-          socket.send( pacer.front() );
+          auto pkt_temp = pacer.front();
+          //update real packet send timestamp
+          const uint32_t network_order_temp = htole32( duration_cast<milliseconds>( system_clock::now().time_since_epoch() ).count() );
+          const string packet_send_timestamp_temp = string( reinterpret_cast<const char *>( &network_order_temp ),sizeof( network_order_temp ) );
+          pkt_temp.replace(22,4,packet_send_timestamp_temp);
+
+          socket.send( pkt_temp );
           pacer.pop();
         }
 
