@@ -54,6 +54,8 @@
 #include "pacer.hh"
 #include "procinfo.hh"
 
+#include "monax.hh"
+
 using namespace std;
 using namespace std::chrono;
 using namespace PollerShortNames;
@@ -197,6 +199,8 @@ int main( int argc, char *argv[] )
   if ( argc < 1 ) { /* for sticklers */
     abort();
   }
+  
+  Monax CC_Monax(3, 0.2, 1.0, 0.2, 0.2, 30.0, 500);
 
   /* camera settings */
   string camera_device = "/dev/video0";
@@ -261,6 +265,17 @@ int main( int argc, char *argv[] )
 
   /* make pacer to smooth out outgoing packets */
   Pacer pacer;
+  
+  double RealRTT = 0.0;
+  unsigned int inter_send_delay = 500; //us
+  double Throughput = 0.0;
+
+  
+
+  std::chrono::system_clock::time_point throughput_cal_start = system_clock::now();
+  const int throughput_cal_period = 1000;   //ms
+  int data_size = 0;  //bytes 
+  
 
   /* get connection_id */
   const uint16_t connection_id = paranoid::stoul( argv[ optind + 2 ] );
@@ -512,7 +527,7 @@ int main( int argc, char *argv[] )
           for ( auto & future_res : encode_outputs ) {
             future_res.wait();
           }
-
+        
           encode_end_pipe.first.write( "1" );
         }
       ).detach();
@@ -616,9 +631,26 @@ int main( int argc, char *argv[] )
                            output.frame };
       /* enqueue the packets to be sent */
       /* send 5x faster than packets are being received */
-      const unsigned int inter_send_delay = min( 2000u, max( 500u, avg_delay / 5 ) );
+
+      CC_Monax.setRealRtt(RealRTT);
+      CC_Monax.setDeliveryRate(Throughput);
+      if(!cumulative_fpf.empty()){
+        CC_Monax.setFlightSize(cumulative_fpf.back() - last_acked);
+      }else{
+        CC_Monax.setFlightSize(0);  
+      }
+  
+      CC_Monax.setSndPeriod(inter_send_delay);
+      CC_Monax.setWndSize(30);
+      CC_Monax.setSrtLossSeqStatus(0);
+
+      CC_Monax.calcCCPara();
+
+      cout << "inter send delay = " << CC_Monax.getSndPeriod() << endl;
+
+      inter_send_delay = min( 2000u, max( 500u, avg_delay / 5 ) );
       for ( const auto & packet : ff.packets() ) {
-        pacer.push( packet.to_string(), inter_send_delay );
+        pacer.push( packet.to_string(), CC_Monax.getSndPeriod() );
       }
 
       last_sent = system_clock::now();
@@ -684,8 +716,8 @@ int main( int argc, char *argv[] )
       receiver_complete_states = move( ack.complete_states() );
 
       uint32_t now = duration_cast<milliseconds>( system_clock::now().time_since_epoch() ).count();
-      uint32_t RTT = now - ack.packet_send_timestamp() - ack.ack_delay();
-      cout << "RTT = " << RTT << endl;
+      RealRTT = now - ack.packet_send_timestamp() - ack.ack_delay();
+      // cout << "RTT = " << RealRTT << endl;
 
       return ResultType::Continue;
     } )
@@ -704,12 +736,25 @@ int main( int argc, char *argv[] )
           const string packet_send_timestamp_temp = string( reinterpret_cast<const char *>( &network_order_temp ),sizeof( network_order_temp ) );
           pkt_temp.replace(22,4,packet_send_timestamp_temp);
 
+          const int timeCount = duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now() - throughput_cal_start).count();
+          if(timeCount>throughput_cal_period){
+            //calculate the throughput 
+            throughput_cal_start = std::chrono::system_clock::now();
+            Throughput = (data_size/pow(1024.0,2))*8;
+            cout << "throughput = " << Throughput << endl;
+            data_size = pkt_temp.length();
+          }else{
+            data_size += pkt_temp.length();
+          }
+          
           socket.send( pkt_temp );
           pacer.pop();
+          
         }
-
         return ResultType::Continue;
       }, [&]() { return pacer.ms_until_due() == 0; } ) );
+      
+
 
   /* kick off the first encode */
   encode_start_pipe.first.write( "1" );
