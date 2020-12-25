@@ -183,6 +183,7 @@ private:
 
   uint32_t packet_send_timestamp_;
   uint32_t ack_delay_;
+  uint32_t frame_one_way_delay_;
   uint16_t frame_finish_state_;
 
   std::deque<uint32_t> complete_states_;
@@ -191,7 +192,7 @@ public:
   AckPacket( const uint16_t connection_id, const uint32_t frame_no,
              const uint16_t fragment_no, const uint32_t avg_delay,
              const uint32_t current_state, const uint32_t packet_send_timestamp, 
-             const uint32_t ack_delay, const uint16_t frame_finish_state, std::deque<uint32_t> complete_states );
+             const uint32_t ack_delay, const uint32_t frame_one_way_delay, const uint16_t frame_finish_state, std::deque<uint32_t> complete_states );
 
   AckPacket( const Chunk & str );
 
@@ -208,6 +209,7 @@ public:
 
   uint32_t packet_send_timestamp() const { return packet_send_timestamp_; }
   uint32_t ack_delay() const { return ack_delay_; }
+  uint32_t frame_one_way_delay() const { return frame_one_way_delay_; }
   uint16_t frame_finish_state() const { return frame_finish_state_; }
   
   std::deque<uint32_t> complete_states() const { return complete_states_; }

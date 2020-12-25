@@ -40,6 +40,7 @@
 #include <unordered_map>
 #include <iomanip>
 #include <cmath>
+#include <fstream>
 
 #include "exception.hh"
 #include "finally.hh"
@@ -193,6 +194,11 @@ enum class OperationMode
   S1, S2, Conventional
 };
 
+enum class RateControl
+{
+  origin, monax
+};
+
 int main( int argc, char *argv[] )
 {
   /* check the command-line arguments */
@@ -202,6 +208,9 @@ int main( int argc, char *argv[] )
   
   Monax CC_Monax(3, 0.2, 1.0, 0.2, 0.2, 30.0, 500);
 
+  // ofstream log_file;
+  // log_file.open("./log/sender_log.txt");
+
   /* camera settings */
   string camera_device = "/dev/video0";
   string pixel_format = "NV12";
@@ -209,17 +218,20 @@ int main( int argc, char *argv[] )
   OperationMode operation_mode = OperationMode::S2;
   bool log_mem_usage = false;
 
+  RateControl rateControl = RateControl::origin;
+
   const option command_line_options[] = {
     { "mode",          required_argument, nullptr, 'm' },
     { "device",        required_argument, nullptr, 'd' },
     { "pixfmt",        required_argument, nullptr, 'p' },
     { "update-rate",   required_argument, nullptr, 'u' },
+    { "rate-control",  required_argument, nullptr, 'r'},
     { "log-mem-usage", no_argument,       nullptr, 'M' },
     { 0, 0, 0, 0 }
   };
 
   while ( true ) {
-    const int opt = getopt_long( argc, argv, "d:p:m:u:", command_line_options, nullptr );
+    const int opt = getopt_long( argc, argv, "d:p:m:u:r:", command_line_options, nullptr );
 
     if ( opt == -1 ) { break; }
 
@@ -241,6 +253,11 @@ int main( int argc, char *argv[] )
 
     case 'u':
       update_rate = paranoid::stoul( optarg );
+      break;
+
+    case 'r':
+      if ( strcmp( optarg, "monax" ) == 0 ) { rateControl = RateControl::monax; }
+      else if ( strcmp( optarg, "origin" ) == 0 ) { rateControl = RateControl::origin; }
       break;
 
     case 'M':
@@ -267,6 +284,7 @@ int main( int argc, char *argv[] )
   Pacer pacer;
   
   double RealRTT = 0.0;
+  double frame_level_delay = 0.0;
   unsigned int inter_send_delay = 500; //us
   double Throughput = 0.0;
 
@@ -632,25 +650,28 @@ int main( int argc, char *argv[] )
       /* enqueue the packets to be sent */
       /* send 5x faster than packets are being received */
 
-      CC_Monax.setRealRtt(RealRTT);
-      CC_Monax.setDeliveryRate(Throughput);
-      if(!cumulative_fpf.empty()){
-        CC_Monax.setFlightSize(cumulative_fpf.back() - last_acked);
+      if(rateControl == RateControl::monax){
+        CC_Monax.setRealRtt(RealRTT);
+        CC_Monax.setDeliveryRate(Throughput);
+        if(!cumulative_fpf.empty()){
+          CC_Monax.setFlightSize(cumulative_fpf.back() - last_acked);
+        }else{
+          CC_Monax.setFlightSize(0);  
+        }
+    
+        CC_Monax.setSndPeriod(inter_send_delay);
+        CC_Monax.setWndSize(30);
+        CC_Monax.setSrtLossSeqStatus(0);
+
+        CC_Monax.calcCCPara();
+        inter_send_delay = CC_Monax.getSndPeriod();
       }else{
-        CC_Monax.setFlightSize(0);  
+        inter_send_delay = min( 2000u, max( 500u, avg_delay / 5 ) );
       }
-  
-      CC_Monax.setSndPeriod(inter_send_delay);
-      CC_Monax.setWndSize(30);
-      CC_Monax.setSrtLossSeqStatus(0);
 
-      CC_Monax.calcCCPara();
-
-      cout << "inter send delay = " << CC_Monax.getSndPeriod() << endl;
-
-      inter_send_delay = min( 2000u, max( 500u, avg_delay / 5 ) );
+      cout << "[sendperiod]:" << inter_send_delay << endl;
       for ( const auto & packet : ff.packets() ) {
-        pacer.push( packet.to_string(), CC_Monax.getSndPeriod() );
+        pacer.push( packet.to_string(), inter_send_delay );
       }
 
       last_sent = system_clock::now();
@@ -717,7 +738,11 @@ int main( int argc, char *argv[] )
 
       uint32_t now = duration_cast<milliseconds>( system_clock::now().time_since_epoch() ).count();
       RealRTT = now - ack.packet_send_timestamp() - ack.ack_delay();
-      // cout << "RTT = " << RealRTT << endl;
+      
+      cout << "[RTT]:" << RealRTT << endl;
+      if(ack.frame_finish_state()==1){
+        cout << "[frame_one_way_delay]:" << ack.frame_one_way_delay() << endl;
+      }
 
       return ResultType::Continue;
     } )
@@ -741,7 +766,7 @@ int main( int argc, char *argv[] )
             //calculate the throughput 
             throughput_cal_start = std::chrono::system_clock::now();
             Throughput = (data_size/pow(1024.0,2))*8;
-            cout << "throughput = " << Throughput << endl;
+            cout << "[throughput]:" << Throughput << endl;
             data_size = pkt_temp.length();
           }else{
             data_size += pkt_temp.length();

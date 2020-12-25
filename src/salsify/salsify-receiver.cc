@@ -201,6 +201,8 @@ int main( int argc, char *argv[] )
   /* EWMA */
   AverageInterPacketDelay avg_delay;
 
+  uint32_t frame_one_way_delay;
+
   /*end to end delay */
   uint32_t frame_push_timestamp_last;
 
@@ -241,7 +243,7 @@ int main( int argc, char *argv[] )
         cerr << "got a packet for frame #" << packet.frame_no()
              << ", display previous frame(s)." << endl;
         
-        auto frame_one_way_delay = now_t - frame_push_timestamp_last;
+        frame_one_way_delay = now_t - frame_push_timestamp_last;
 
         // cout << "======================================================" << endl;
         // cout << "frame level one way dealy = " << frame_one_way_delay << endl;
@@ -311,7 +313,7 @@ int main( int argc, char *argv[] )
         // here we apply the frame
         enqueue_frame( player, fragment.frame() );
         
-        auto frame_one_way_delay = now_t - frame_push_timestamp_last;
+        frame_one_way_delay = now_t - frame_push_timestamp_last;
         // cout << "======================================================" << endl;
         // cout << "frame level one way dealy = " << frame_one_way_delay << endl;
         // cout << "======================================================" << endl;
@@ -335,7 +337,7 @@ int main( int argc, char *argv[] )
       uint32_t ack_delay = duration_cast<milliseconds>( system_clock::now().time_since_epoch() ).count() - ack_start;
       AckPacket( connection_id, packet.frame_no(), packet.fragment_no(),
                  avg_delay.int_value(), current_state, packet.packet_send_timestamp(),
-                 ack_delay, frame_finish_state, complete_states ).sendto( socket, new_fragment.source_address );
+                 ack_delay, frame_one_way_delay, frame_finish_state, complete_states ).sendto( socket, new_fragment.source_address );
 
       auto now = system_clock::now();
 
@@ -347,7 +349,7 @@ int main( int argc, char *argv[] )
         next_mem_usage_report = now + 5s;
       }
 
-      frame_push_timestamp_last = packet.frame_push_timestamp();
+      frame_push_timestamp_last = packet.frame_push_timestamp();  
 
       return ResultType::Continue;
     },
