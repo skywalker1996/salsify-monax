@@ -15,7 +15,7 @@ struct Aggregationgroup {
     double prob;
 };
 struct Actiongroup {
-    int cwnd;
+    int send_period;
     double utility;
     std::map< std::string, double>logInfo;
 };
@@ -89,12 +89,18 @@ private:
     size_t save_history;
 
     //CWND step size params
-    int increase_step;
-    int decrease_step;
+    int speedup_step;
+    int slowdown_step;
     int initial_step_size;
-    int increase_step_change_rate;
-    int decrease_step_change_rate;
+    int speedup_step_change_rate;
+    int slowdown_step_change_rate;
     int stepsize_max;
+    int stepsize_min;
+
+    //direction confidence
+    double speedup_confidence;
+    double slowdown_confidence;
+
 
     //aggregation module intervention level (0.0 - 1.0)
     int intervention_prob;

@@ -1,14 +1,14 @@
 ﻿#define CWND_MIN 30
 #define CWND_MAX 1000
 
-#define INTERVAL_MIN 500
+#define INTERVAL_MIN 10
 #define INTERVAL_MAX 2000
 
 #define SAVEUTILITY 20
 #define SAVEHISTORY 100
 #define MID 15
 #define HIGH 20
-#define RTT_THRESHOLD 30
+#define RTT_THRESHOLD 50
 #define ENSEMBLE true
 #define RTT_PREDICTION false
 #define MONITOR_LEN 10
@@ -103,7 +103,7 @@ void Monax::calcCCPara() {
     }
 
     Actiongroup actgroup = action(current_monitor_para);
-    this->currentCWND = actgroup.cwnd;
+    this->SndPeriod = actgroup.send_period;
     this->currentUtility = actgroup.utility;
 }
 
@@ -149,7 +149,13 @@ Predictiongroup predict(std::vector<double>sample, std::vector<double>weights) {
     for (int i = 0; i < sample.size(); i++) {
         product += sample[i] * weights[i];
     }
+    std::cout << "[samples]:" << sample[0] << " , " << sample[1] << " , " << sample[2] << std::endl;
+    std::cout << "[weights]:" << weights[0] << " , " << weights[1] << " , " << weights[2] << std::endl;
+
+
+    std::cout << "[logistic_input]:" << product + weights[weights.size() - 1] << std::endl;
     double raw_output = logistic(product + weights[weights.size() - 1]);
+    std::cout << "[raw_output]:" << raw_output << std::endl;
     if (raw_output > 0.5) {
         return { 1,raw_output };
     }
@@ -191,13 +197,13 @@ Monax::Monax(int dim, double alpha, double beta, double lambda1, double lambda2,
     // stepsize_max = 30;
 
     //SndPeriod step size params (us)
-    increase_step = 100;
-    decrease_step = 100;
+    speedup_step = 100;
+    slowdown_step = 100;
     initial_step_size = 100;
-    increase_step_change_rate = 50;
-    decrease_step_change_rate = 50;
-    stepsize_max = 500;
-
+    speedup_step_change_rate = 50;
+    slowdown_step_change_rate = 50;
+    stepsize_max = 300;
+    stepsize_min = 50;
 
 
     //aggregation module intervention level (0.0 - 1.0)
@@ -206,8 +212,6 @@ Monax::Monax(int dim, double alpha, double beta, double lambda1, double lambda2,
     used_model = 0;
 
     coldstart = true;
-    save_history = SAVEHISTORY;
-
 
     std::vector<double> zs(inputDim + 1);
     std::vector<double> ns(inputDim + 1);
@@ -220,8 +224,7 @@ Monax::Monax(int dim, double alpha, double beta, double lambda1, double lambda2,
         buffer.insert(std::pair<std::string, std::vector<double>>("weights", weights));
         modelPool.insert(std::pair<int, std::map<std::string, std::vector<double>>>(i, buffer));
     }
-
-
+    
     model_history_prediction.resize(model_num);
 
     if (ENSEMBLE == true) {
@@ -246,14 +249,13 @@ Monax::Monax(int dim, double alpha, double beta, double lambda1, double lambda2,
     current_monitor_para.insert(std::make_pair("cwnd", m_cwnd));
 
 
-
-
 }
 
 
 Actiongroup Monax::action(std::map< std::string, std::vector<double>> monitor_para) {
 
     int cwnd;
+    int send_period;
     double utility;
     int prediction;
     double prediction_prob = 0.0;
@@ -261,18 +263,23 @@ Actiongroup Monax::action(std::map< std::string, std::vector<double>> monitor_pa
     int decision;
     double decision_prob;
 
-    current_monitor_para = monitor_para;
 
-    int delaysize = current_monitor_para["network_delay"].size();
+    int delaysize = monitor_para["network_delay"].size();
     delivery_rate = monitor_para["delivery_rate"][0];
-    network_delay_gradient = monitor_para["network_delay"][delaysize - 1] - monitor_para["network_delay"][delaysize - 2];
+    // network_delay_gradient = monitor_para["network_delay"][delaysize - 1] - monitor_para["network_delay"][delaysize - 2];
     //current_loss = monitor_para["packet_loss"][monitor_para["packet_loss"].size() - 1];
     max_network_delay = std::max(monitor_para["network_delay"][delaysize - 1], monitor_para["network_delay"][delaysize - 2]);
     //throughput_error = monitor_para["throughput_error"][0];
     currentCWND = int(monitor_para["cwnd"][0]);
     //RTT prediction module, skip now 124-130
 
-    std::vector<double>sample = { delivery_rate,network_delay_gradient,monitor_para["network_delay"][MONITOR_LEN - 1] };//the size of sample should be inputDim
+
+    auto RTT_gradient_1 = monitor_para["network_delay"][delaysize - 3] - monitor_para["network_delay"][delaysize - 4];
+    auto RTT_gradient_2 = monitor_para["network_delay"][delaysize - 2] - monitor_para["network_delay"][delaysize - 3];
+    auto RTT_gradient_3 = monitor_para["network_delay"][delaysize - 1] - monitor_para["network_delay"][delaysize - 2];
+
+
+    std::vector<double>sample = { delivery_rate, monitor_para["network_delay"][delaysize - 1], RTT_gradient_1, RTT_gradient_2, RTT_gradient_3};//the size of sample should be inputDim
     utility = utility_function(sample, RTT_THRESHOLD, RTT_PREDICTION);
 
     if (coldstart) {
@@ -295,7 +302,9 @@ Actiongroup Monax::action(std::map< std::string, std::vector<double>> monitor_pa
         if (utility - *(utility_record.end()-1) > 0) {
             label = *(history_decision.end()-1);
         }
-        else { label = 1 - *(history_decision.end()-1); }
+        else { 
+            label = 1 - *(history_decision.end()-1); 
+        }
 
         if (history_label.size() < SAVEHISTORY) {
             history_label.push_back(label);
@@ -313,6 +322,33 @@ Actiongroup Monax::action(std::map< std::string, std::vector<double>> monitor_pa
             utility_record.push_back(utility);
         }
     }
+
+
+    //modify step size
+    if(history_label.size()>3){
+
+        auto temp_size = history_label.size();
+        auto speedup_pred = history_prediction[temp_size-4] + history_prediction[temp_size-3] 
+                            + history_prediction[temp_size-2] + history_prediction[temp_size-1];
+
+        auto speedup_label = history_label[temp_size-4] + history_label[temp_size-3] 
+                            + history_label[temp_size-2] + history_label[temp_size-1];
+
+        auto slowdown_pred = 4 - speedup_pred;
+        auto slowdown_label = 4 - speedup_label;
+
+        speedup_confidence = double(speedup_pred) / speedup_label;
+        slowdown_confidence = double(slowdown_pred) / slowdown_label;
+
+        speedup_step = std::max(std::min( stepsize_max, int(speedup_step*(0.5 + speedup_confidence))), stepsize_min);
+        slowdown_step = std::max(std::min( stepsize_max, int(slowdown_step*(0.5 + slowdown_confidence))), stepsize_min);
+        std::cout << "[modify step size]"<<speedup_step<<"and"<<slowdown_step<<std::endl;
+
+    
+    }
+
+    std::cout << "online learning FTRL algorithm" << std::endl;
+        
     //online learning FTRL algorithm
     std::vector<double>& para_zs = modelPool[current_model]["_zs"];
     std::vector<double>& para_ns = modelPool[current_model]["_ns"];
@@ -346,7 +382,7 @@ Actiongroup Monax::action(std::map< std::string, std::vector<double>> monitor_pa
         accuracy = check_accuracy(history_prediction, history_label);
     }
 
-
+    std::cout << "update current model parameters" << std::endl;
     //update current model parameters
     double sigma;
     for (std::vector<int>::iterator it = nonzeroVector.begin(); it != nonzeroVector.end(); it++) {
@@ -363,7 +399,7 @@ Actiongroup Monax::action(std::map< std::string, std::vector<double>> monitor_pa
 
     //get new prediction
     if (ENSEMBLE) {
-        for (int i = 0; i < model_num; i++) {
+        for (size_t i = 0; i < model_num; i++) {
             std::vector<double> para_weights_m = modelPool[i]["weights"];
             Predictiongroup predictiongroup_m = predict(sample, para_weights_m);
             int prediction_m = predictiongroup_m.prediction;
@@ -422,7 +458,7 @@ Actiongroup Monax::action(std::map< std::string, std::vector<double>> monitor_pa
         }
     }
 
-
+    std::cout << "[prediction_prob]:" << prediction_prob << std::endl;
     Aggregationgroup agg_group = policy_aggregation(prediction_prob);
 
     decision = agg_group.decision;
@@ -436,13 +472,13 @@ Actiongroup Monax::action(std::map< std::string, std::vector<double>> monitor_pa
         history_decision.push_back(decision);
     }
 
-    cwnd = rate_control(decision_prob);
+    send_period = rate_control(decision_prob);
 
     std::map<std::string, double> log_info;
 
     intervention_prob = compute_intervention_prob(history_prediction, history_decision);
     log_info["intervention_prob"] = intervention_prob;
-    return { cwnd, utility,log_info };
+    return { send_period, utility,log_info };
 }
 
 
@@ -455,10 +491,11 @@ double Monax::utility_function(std::vector<double> sample, int RTT_threshold, bo
     double utility, RTT_prediction_part;
 
 
-    // sample = { delivery_rate, network_delay_gradient, monitor_para["network_delay"][-1]}
+// sample = { delivery_rate, monitor_para["network_delay"][delaysize - 1], RTT_gradient_1, RTT_gradient_2, RTT_gradient_3};
+
     double delivery_rate = sample[0];
-    double network_delay_gradient = sample[1];
-    double network_delay = sample[2];
+    double network_delay = sample[1];
+    double network_delay_gradient = sample[4];
     double packet_loss = 0;
     //double current_loss = sample[3];
     //double throughput_error = sample[4];
@@ -479,21 +516,26 @@ double Monax::utility_function(std::vector<double> sample, int RTT_threshold, bo
         }
     }
 
-    std::vector<double> weights = { sr_weight,-0.9,-0.01,-0.4,0.001,0.001 };
-    double sending_rate_part = delivery_rate * weights[0];
-    double RTT_g_part = weights[1] * network_delay_gradient * delivery_rate;
-    double RTT_exceed_part = weights[2] * std::max(network_delay - RTT_threshold, 0.0) * delivery_rate;
-    double loss_part = weights[3] * packet_loss * delivery_rate;
-    double RTT_max_part = weights[2] * network_delay * delivery_rate;
+    // std::vector<double> weights = { sr_weight,-0.9,-0.01,-0.4,0.001,0.001 };
+    // double sending_rate_part = delivery_rate * weights[0];
+    // double RTT_g_part = weights[1] * network_delay_gradient * delivery_rate;
+    // double RTT_exceed_part = weights[2] * std::max(network_delay - RTT_threshold, 0.0) * delivery_rate;
+    // double loss_part = weights[3] * packet_loss * delivery_rate;
+    // double RTT_max_part = weights[2] * network_delay * delivery_rate;
 
-
+    double sending_rate_part = delivery_rate * sr_weight;
+    double RTT_g_part = -1 * sample[4] - 0.8 * sample[3] - 0.5 * sample[2];
+    
     if ((network_delay - RTT_threshold) > 0) {
-        utility = RTT_g_part + loss_part;
+        utility = RTT_g_part;
+        std::cout<<"========[slowing mode]"<<std::endl;
     }
     else {
-        utility = sending_rate_part + loss_part;
+        utility = sending_rate_part;
+        std::cout<<"========[speeding mode]"<<std::endl;
     }
 
+    std::cout<<"utility = "<< utility << std::endl;
     return utility;
 }
 
@@ -511,78 +553,74 @@ double Monax::compute_intervention_prob(std::vector<int> historyPrediction, std:
 
 Aggregationgroup Monax::policy_aggregation(double prob) {
 
-    int aggregate_decision;
+    int aggregate_decision = *(history_prediction.end() - 1);
     double delta_utility = *(utility_record.end() - 1) - *(utility_record.end() - 2);
 
     int delaysize = current_monitor_para["network_delay"].size();
-    if (current_monitor_para["network_delay"][delaysize - 1] > RTT_THRESHOLD) {
-        aggregate_decision = 0;
-        if (*(history_prediction.end() - 1) == aggregate_decision) {
-            return { aggregate_decision,prob };
-        }
-        else {
-            return { aggregate_decision,1 - prob };
-        }
-    }
+    // if (current_monitor_para["network_delay"][delaysize - 1] > RTT_THRESHOLD) {
+    //     aggregate_decision = 0;
+    //     if (*(history_prediction.end() - 1) == aggregate_decision) {
+    //         return { aggregate_decision,prob };
+    //     }
+    //     else {
+    //         return { aggregate_decision,1 - prob };
+    //     }
+    // }
 
-    if (delta_utility > 0) {
-        return { *(history_prediction.end() - 1),prob };
-    }
-    else {
-        aggregate_decision = 1 - *(history_decision.end() - 1);
-    }
+    // if (delta_utility > 0) {
+    //     aggregate_decision = *(history_prediction.end() - 1);
+    // }else {
+    //     aggregate_decision = 1 - *(history_decision.end() - 1);
+    // }
 
     double div_threshold_scale = (RTT_THRESHOLD - (accumulate(current_monitor_para["network_delay"].end() - 3, \
         current_monitor_para["network_delay"].end(), 0.0f) / 3)) / RTT_THRESHOLD;
 
-    if (div_threshold_scale > 0 && (rand() % 100) / 100 < div_threshold_scale) {
+    if (div_threshold_scale > 0 && ((rand() % 100) / 100) < div_threshold_scale) {
         aggregate_decision = 1;
-    }
-    if (div_threshold_scale < 0 && (rand() % 100) / 100 < (-1) * div_threshold_scale) {
+    }else if (div_threshold_scale < 0 && ((rand() % 100) / 100) < (-1) * div_threshold_scale) {
         aggregate_decision = 0;
     }
-    if (*(history_prediction.end() - 1) != aggregate_decision) { prob = 1 - prob; }
+    
+    if (*(history_prediction.end() - 1) != aggregate_decision){ 
+        prob = 1 - prob; 
+    }
+
     return { aggregate_decision,prob };
 }
 
 double Monax::rate_control(double result) {
 
-    int delaysize = current_monitor_para["network_delay"].size();
+    size_t delaysize = current_monitor_para["network_delay"].size();
     double current_network_delay = current_monitor_para["network_delay"][delaysize - 1];
 
     int base_CWND = this->currentCWND;
     int base_INTERVAL = this->SndPeriod;
 
-    if (result < 0.5) {
-        //decrease sending_rate
-        if (*(history_decision.end() - 1) == 0 && *(history_decision.end() - 1) == 0 && decrease_step < stepsize_max) {
-            decrease_step += decrease_step_change_rate;
+    std::cout << "[final result]:"<<result<<std::endl;
+
+    if (result > 0.5) {
+        //increase sending_rate
+        
+        if (*(history_decision.end() - 2) == 1 && *(history_decision.end() - 1) == 1) {
+            speedup_step = std::min(stepsize_max, speedup_step + speedup_step_change_rate);
         }
-        else {
-            decrease_step = int(decrease_step / 2);
+        std::cout << "[before decreasing base_INTERVAL]:"<<base_INTERVAL << " and " <<speedup_step <<std::endl;
+        base_INTERVAL = std::min(std::max(INTERVAL_MIN, base_INTERVAL - speedup_step ),INTERVAL_MAX );
+        std::cout << "[decreasing base_INTERVAL to]:"<<base_INTERVAL<<std::endl;
+
+
+    }else if(result < 0.5) {
+        // decrease sending_rate
+        if (*(history_decision.end() - 2) == 0 && *(history_decision.end() - 1) == 0 ) {
+            slowdown_step = std::min(stepsize_max, slowdown_step + slowdown_step_change_rate);
         }
-        if (base_INTERVAL - decrease_step > INTERVAL_MIN) {
-            base_INTERVAL -= decrease_step;
-        }
-        else {
-            base_INTERVAL += 3 * decrease_step;
-        }
+        std::cout << "[before increasing base_INTERVAL]:"<<base_INTERVAL << " and " << slowdown_step <<std::endl;
+        base_INTERVAL = std::min(std::max(INTERVAL_MIN, base_INTERVAL + slowdown_step ), INTERVAL_MAX);
+        std::cout << "[increasing base_INTERVAL]:"<<base_INTERVAL<<std::endl;
+
     }
 
-    else {
-        if (*(history_decision.end() - 1) == 1 && *(history_decision.end() - 1) == 0 && increase_step < stepsize_max) {
-            increase_step += increase_step_change_rate;
-        }
-        else {
-            increase_step = initial_step_size;
-        }
-        if (base_INTERVAL + increase_step < INTERVAL_MAX) {
-            base_INTERVAL += increase_step;
-        }
-        else {
-            base_INTERVAL -= 3 * increase_step;
-        }
-    }
     return base_INTERVAL;
 }
 

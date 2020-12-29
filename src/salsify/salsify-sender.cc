@@ -206,7 +206,7 @@ int main( int argc, char *argv[] )
     abort();
   }
   
-  Monax CC_Monax(3, 0.2, 1.0, 0.2, 0.2, 30.0, 500);
+  Monax CC_Monax(5, 0.2, 1.0, 0.2, 0.2, 30.0, 500);
 
   // ofstream log_file;
   // log_file.open("./log/sender_log.txt");
@@ -283,8 +283,8 @@ int main( int argc, char *argv[] )
   /* make pacer to smooth out outgoing packets */
   Pacer pacer;
   
-  double RealRTT = 0.0;
-  double frame_level_delay = 0.0;
+  uint32_t RealRTT = 100.0;
+  double frame_one_way_delay = 50.0;
   unsigned int inter_send_delay = 500; //us
   double Throughput = 0.0;
 
@@ -583,7 +583,11 @@ int main( int argc, char *argv[] )
       size_t frame_size = numeric_limits<size_t>::max();
 
       if ( avg_delay != numeric_limits<uint32_t>::max() ) {
-        frame_size = target_size( avg_delay, last_acked, cumulative_fpf.back() );
+        if(rateControl == RateControl::monax){
+          frame_size = target_size( avg_delay, last_acked, cumulative_fpf.back());
+        }else{
+          frame_size = target_size( avg_delay, last_acked, cumulative_fpf.back());
+        }
       }
 
       size_t best_output_index = numeric_limits<size_t>::max();
@@ -664,12 +668,14 @@ int main( int argc, char *argv[] )
         CC_Monax.setSrtLossSeqStatus(0);
 
         CC_Monax.calcCCPara();
+        cout << "[sendperiod]:" << inter_send_delay << endl;
         inter_send_delay = CC_Monax.getSndPeriod();
       }else{
-        inter_send_delay = min( 2000u, max( 500u, avg_delay / 5 ) );
+        inter_send_delay = min( 2000u, max( 100u, avg_delay / 5 ) );
+        cout << "[sendperiod]:" << inter_send_delay << endl;
       }
 
-      cout << "[sendperiod]:" << inter_send_delay << endl;
+      
       for ( const auto & packet : ff.packets() ) {
         pacer.push( packet.to_string(), inter_send_delay );
       }
@@ -742,6 +748,7 @@ int main( int argc, char *argv[] )
       cout << "[RTT]:" << RealRTT << endl;
       if(ack.frame_finish_state()==1){
         cout << "[frame_one_way_delay]:" << ack.frame_one_way_delay() << endl;
+        frame_one_way_delay = ack.frame_one_way_delay();
       }
 
       return ResultType::Continue;
