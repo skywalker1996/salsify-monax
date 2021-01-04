@@ -344,7 +344,6 @@ Actiongroup Monax::action(std::map< std::string, std::vector<double>> monitor_pa
         slowdown_step = std::max(std::min( stepsize_max, int(slowdown_step*(0.5 + slowdown_confidence))), stepsize_min);
         std::cout << "[modify step size]"<<speedup_step<<"and"<<slowdown_step<<std::endl;
 
-    
     }
 
     std::cout << "online learning FTRL algorithm" << std::endl;

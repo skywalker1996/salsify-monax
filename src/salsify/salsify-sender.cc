@@ -114,7 +114,7 @@ struct EncodeOutput
 {
   Encoder encoder;
   vector<uint8_t> frame;
-  uint32_t source_minihash;
+  uint32_t source_minihash; 
   milliseconds encode_time;
   string job_name;
   uint8_t y_ac_qi;
@@ -213,7 +213,7 @@ int main( int argc, char *argv[] )
 
   /* camera settings */
   string camera_device = "/dev/video0";
-  string pixel_format = "NV12";
+  string pixel_format = "YU12";
   size_t update_rate __attribute__((unused)) = 1;
   OperationMode operation_mode = OperationMode::S2;
   bool log_mem_usage = false;
@@ -291,7 +291,7 @@ int main( int argc, char *argv[] )
   
 
   std::chrono::system_clock::time_point throughput_cal_start = system_clock::now();
-  const int throughput_cal_period = 1000;   //ms
+  const int throughput_cal_period = 1000;  //ms
   int data_size = 0;  //bytes 
   
 
@@ -671,7 +671,7 @@ int main( int argc, char *argv[] )
         cout << "[sendperiod]:" << inter_send_delay << endl;
         inter_send_delay = CC_Monax.getSndPeriod();
       }else{
-        inter_send_delay = min( 2000u, max( 100u, avg_delay / 5 ) );
+        inter_send_delay = min( 2000u, max( 500u, avg_delay / 5 ) );
         cout << "[sendperiod]:" << inter_send_delay << endl;
       }
 
