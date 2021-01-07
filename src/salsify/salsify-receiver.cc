@@ -39,6 +39,15 @@
 #include <condition_variable>
 #include <future>
 
+#include <typeinfo>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <filesystem>
+#include <unistd.h>
+
 #include "socket.hh"
 #include "packet.hh"
 #include "poller.hh"
@@ -47,10 +56,33 @@
 #include "display.hh"
 #include "paranoid.hh"
 #include "procinfo.hh"
+#include "../uWebSockets/App.h"
 
 using namespace std;
 using namespace std::chrono;
 using namespace PollerShortNames;
+
+
+struct PerSocketData {
+        /* Fill with user data */
+    };
+
+std::string_view ReadImage(const std::string& imagePath)
+{
+    std::ifstream imgStream;
+    imgStream.open((char*)imagePath.c_str(), ios::binary|ios::in);
+    imgStream.seekg(0, imgStream.end);
+    int length=imgStream.tellg();
+    imgStream.seekg(0,imgStream.beg);
+    char* blob = new char[length];
+    if(imgStream.is_open()){
+      imgStream.read(blob,length);
+    }
+    imgStream.close();
+    std::string_view image(blob,length);
+    return image;
+}
+
 
 class AverageInterPacketDelay
 {
@@ -82,6 +114,70 @@ public:
   uint32_t int_value() const { return static_cast<uint32_t>( value_ ); }
 };
 
+
+
+void SendPicture(){
+  uWS::App().ws<PerSocketData>("/*", {
+      /* Settings */
+      .compression = uWS::SHARED_COMPRESSOR,
+      .maxPayloadLength = 16 * 1024,
+      .idleTimeout = 0,
+      .maxBackpressure = 1 * 1024 * 1024,
+      /* Handlers */
+      .upgrade = nullptr,
+      .open = [](auto *ws) {
+          /* Open event here, you may access ws->getUserData() which points to a PerSocketData struct */
+          std::cout << "Connection Established!" << std::endl;
+      },
+
+      .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
+            std::string imageDir = "/home/librah/Desktop/workspace/images/";
+            std::string imageName;
+            std::string imagePath;
+            std::string_view image;
+            std::string FILENAME=imageDir +std::string(message)+ ".jpg";
+            ifstream inFile;
+            inFile.open(FILENAME, ios::in);
+
+
+            while(!inFile){
+              usleep(10000);
+              inFile.open(FILENAME,ios::in);
+            }
+
+              // inFile.open(FILENAME,ios::in);
+              // if(!inFile){
+              //   return;
+              // }
+              imageName = std::string(message) + ".jpg";
+              imagePath = imageDir + imageName;
+              image = ReadImage(imagePath);
+              ws->send(image);
+              remove((char*)imagePath.c_str());
+
+      },
+      .drain = [](auto */*ws*/) {
+          /* Check ws->getBufferedAmount() here */
+      },
+      .ping = [](auto */*ws*/) {
+          /* Not implemented yet */
+      },
+      .pong = [](auto */*ws*/) {
+          /* Not implemented yet */
+      },
+      .close = [](auto */*ws*/, int /*code*/, std::string_view /*message*/) {
+          /* You may access ws->getUserData() here */
+          std::cout << "Connection Closed!" << std::endl;
+      }
+  }).listen(9001, [](auto *listen_socket) {
+      if (listen_socket) {
+          std::cout << "Listening on port " << 9001 << std::endl;
+      }
+  }).run();
+}
+
+
+
 void usage( const char *argv0 )
 {
   cerr << "Usage: " << argv0 << " [-f, --fullscreen] [--verbose] PORT WIDTH HEIGHT" << endl;
@@ -97,7 +193,7 @@ uint16_t ezrand()
 
 queue<RasterHandle> display_queue;
 mutex mtx;
-condition_variable cv;
+condition_variable cva;
 
 void display_task( const VP8Raster & example_raster, bool fullscreen )
 {
@@ -105,7 +201,7 @@ void display_task( const VP8Raster & example_raster, bool fullscreen )
 
   while( true ) {
     unique_lock<mutex> lock( mtx );
-    cv.wait( lock, []() { return not display_queue.empty(); } );
+    cva.wait( lock, []() { return not display_queue.empty(); } );
 
     while( not display_queue.empty() ) {
       display.draw( display_queue.front() );
@@ -128,7 +224,7 @@ void enqueue_frame( FramePlayer & player, const Chunk & frame )
       if ( raster.initialized() ) {
         lock_guard<mutex> lock( mtx );
         display_queue.push( raster.get() );
-        cv.notify_all();
+        cva.notify_all();
       }
     }
   );
@@ -193,6 +289,7 @@ int main( int argc, char *argv[] )
 
   /* construct display thread */
   thread( [&player, fullscreen]() { display_task( player.example_raster(), fullscreen ); } ).detach();
+   thread (SendPicture).detach();
 
   /* frame no => FragmentedFrame; used when receiving packets out of order */
   unordered_map<size_t, FragmentedFrame> fragmented_frames;

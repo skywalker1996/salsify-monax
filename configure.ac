@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.61])
 AC_INIT([alfalfa], [0.1], [excamera@cs.stanford.edu])
-AM_INIT_AUTOMAKE([foreign tar-ustar])
+AM_INIT_AUTOMAKE([foreign tar-ustar subdir-objects])
 AC_CONFIG_SRCDIR([src/decoder/prediction.cc])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -19,8 +19,8 @@ AS_IF([test x"$PERL" = x],
   [AC_MSG_ERROR([cannot find perl])])
 
 # Add picky CXXFLAGS
-CXX11_FLAGS="-std=c++14 -pthread"
-PICKY_CXXFLAGS="-pedantic -Wall -Wextra -Weffc++"
+CXX11_FLAGS="-std=c++17 -pthread"
+PICKY_CXXFLAGS="-pedantic -Wall -Wextra"
 AC_SUBST([CXX11_FLAGS])
 AC_SUBST([PICKY_CXXFLAGS])
 AC_LANG_PUSH(C++)

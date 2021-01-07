@@ -1,7 +1,11 @@
-AM_CPPFLAGS = -I$(srcdir)/../util -I$(srcdir)/../decoder -I$(srcdir)/../display -I$(srcdir)/../input -I$(srcdir)/../encoder -I$(srcdir)/../net $(X264_CFLAGS) $(CXX11_FLAGS)
+AM_CPPFLAGS = -I$(srcdir)/../util -I$(srcdir)/../decoder -I$(srcdir)/../display -I$(srcdir)/../input -I$(srcdir)/../encoder -I$(srcdir)/../net $(X264_CFLAGS) $(CXX11_FLAGS) `pkg-config opencv4 --cflags` 
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(NODEBUG_CXXFLAGS)
+USOCKET_CPPFLAGS = -I$(srcdir)/../uWebSockets/uSockets/src
+
 AM_LDFLAGS = $(STATIC_BUILD_FLAG)
 BASE_LDADD = ../input/libalfalfainput.a ../decoder/libalfalfadecoder.a ../util/libalfalfautil.a $(X264_LIBS) $(JPEG_LIBS)
+
+LIBS = `pkg-config opencv4 --libs` -ljpeg -lz
 
 VP8PLAY_BUILD :=
 if BUILDVP8PLAY
@@ -15,9 +19,9 @@ salsify_sender_LDADD = ../net/libnet.a ../encoder/libalfalfaencoder.a $(BASE_LDA
 salsify_sender_LDFLAGS = -pthread
 
 salsify_receiver_SOURCES = salsify-receiver.cc
-salsify_receiver_CPPFLAGS = $(AM_CPPFLAGS) $(GLU_CFLAGS) $(GLEW_CFLAGS) $(GLFW3_CFLAGS)
-salsify_receiver_LDADD = ../display/libalfalfadisplay.a ../net/libnet.a $(BASE_LDADD) $(GLU_LIBS) $(GLEW_LIBS) $(GLFW3_LIBS)
-salsify_receiver_LDFLAGS = -pthread
+salsify_receiver_CPPFLAGS = $(AM_CPPFLAGS) $(USOCKET_CPPFLAGS) $(OPENCV_CPPFLAGS) $(GLU_CFLAGS) $(GLEW_CFLAGS) $(GLFW3_CFLAGS) 
+salsify_receiver_LDADD = ../display/libalfalfadisplay.a ../net/libnet.a ../uWebSockets/uSockets/uSockets.a $(BASE_LDADD) $(GLU_LIBS) $(GLEW_LIBS) $(GLFW3_LIBS)
+salsify_receiver_LDFLAGS = -pthread 
 
 fake_webcam_SOURCES = fake-webcam.cc
 fake_webcam_LDADD = ../encoder/libalfalfaencoder.a $(BASE_LDADD)
@@ -30,4 +34,4 @@ real_webcam_LDFLAGS =
 display_jpeg_SOURCES = display-jpeg.cc
 display_jpeg_CPPFLAGS = $(AM_CPPFLAGS) $(GLU_CFLAGS) $(GLEW_CFLAGS) $(GLFW3_CFLAGS)
 display_jpeg_LDADD = ../display/libalfalfadisplay.a ../net/libnet.a $(BASE_LDADD) $(GLU_LIBS) $(GLEW_LIBS) $(GLFW3_LIBS)
-display_jpeg_LDFLAGS =
+display_jpeg_LDFLAGS = 

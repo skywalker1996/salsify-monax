@@ -28,8 +28,10 @@
 
 #include "exception.hh"
 #include "display.hh"
-
+// #include <GL/glut.h>
 using namespace std;
+
+int numbers=0;
 
 const string VideoDisplay::shader_source_scale_from_pixel_coordinates
 = R"( #version 130
@@ -167,6 +169,9 @@ void VideoDisplay::resize( const pair<unsigned int, unsigned int> & target_size 
   glCheck( "after resizing ");
 }
 
+// void VideoDisplay::setupVideoWriting(){
+//   writer = cvCreateVideoWriter("out.avi", CV_FOURCC('j', 'p', 'e', 'g'), 24, cvSize(width_, height_), 1);
+// }
 void VideoDisplay::draw( const BaseRaster & raster )
 {
   if ( width_ != raster.width() or height_ != raster.height() ) {
@@ -194,6 +199,63 @@ void VideoDisplay::repaint( void )
   texture_shader_array_object_.bind();
   texture_shader_program_.use();
   glDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
-
+  screenCapture(display_width_,display_height_);
+  // int argc = 1;
+  // char *argv[1] = {(char*)"Something"};
+  // glutInit(&argc, argv);
+  // glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+  // glutInitWindowSize(width_, height_);
+  // glutCreateWindow("Hello World");
+  // glewInit();
+  // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+  // glClear(GL_COLOR_BUFFER_BIT);
+  // glViewport(0, 0, width_, height_);
+  // glutSwapBuffers();
   current_context_window_.window_.swap_buffers();
+  // screenCapture(display_width_,display_height_);
+}
+
+void VideoDisplay::screenCapture(int width_, int height_){
+  // unsigned char *raw_image = (unsigned char*) calloc(width * height * 3, sizeof(char));
+  // glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, raw_image);
+  // std::cout<< "raw image:" << raw_image[0] <<std::endl;
+  char* pixels = new char[3*width_ * height_];
+  glReadPixels(0, 0, width_, height_, GL_BGR, GL_UNSIGNED_BYTE, pixels);
+  numbers++;
+  // FIBITMAP* image = FreeImage_ConvertFromRawBits(pixels, width_, height_, 3*width_, 24, 0.409, 0.208, 0.383, false);
+  string FILENAME="/home/librah/Desktop/workspace/images/"+to_string(numbers)+".jpg";
+  // FreeImage_Save(FIF_BMP, image, (char*)FILENAME.c_str(), 0);
+  // // Free resources
+  // FreeImage_Unload(image);
+  // delete [] pixels;
+  IplImage *img=cvCreateImage(cvSize(width_, height_), IPL_DEPTH_8U, 3);
+  img->imageData =pixels;
+  // cvWriteFrame(writer,img);
+  // cv::Mat::__ct tempMat(img);
+  // vector<unsigned char> buff;
+  // cv::imencode(".png",tempMat,buff);
+  // CxImage xImg(&buff[0],buff.size(),CXIMAGE_FORMAT_JPG);
+  // uint8_t *pJpgDataTemp = NULL;
+  // int32_t lJpgSize = 0;
+  // xImg.Encode(pJpgDataTemp,lJpgSize,CXIMAGE_FORMAT_JPG);
+  // free(pJpgDataTemp);
+  // for (int i = 0; i < height_; i++)
+  //   {
+  //       for (int j = 0;j < width_; j++)
+  //       {
+  //       // confirming all values print correctly
+  //       printf("%c, ", img->imageData[i*width_ + j]);
+  //       }
+  //   }
+    cv::Mat mat_img=cv::cvarrToMat(img);
+    cv::Mat mat_img_flip;
+    cv::flip(mat_img, mat_img_flip,0);
+    cv::imwrite(FILENAME,mat_img_flip);
+
+  delete [] pixels;
+  // cvRelease(&img);
+  // IplImage* img = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 3);
+  // img->imageData = (char *)raw_image;
+  // cvWriteFrame(writer, img);      // add the frame to the file
+  // cvReleaseImage(&img);
 }

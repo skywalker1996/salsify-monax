@@ -32,8 +32,16 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc_c.h>
+#include <opencv2/imgproc/types_c.h>
+#include <opencv2/highgui/highgui_c.h>
+
 #include "raster.hh"
 #include "gl_objects.hh"
+
+
 
 class VideoDisplay
 {
@@ -70,10 +78,11 @@ public:
   VideoDisplay( const VideoDisplay & other ) = delete;
   VideoDisplay & operator=( const VideoDisplay & other ) = delete;
 
+  // void setupVideoWriting();
   void draw( const BaseRaster & raster );
   void repaint( void );
   void resize( const std::pair<unsigned int, unsigned int> & target_size );
-
+  void screenCapture(int width, int height);
   const Window & window( void ) const { return current_context_window_.window_; }
 };
 
