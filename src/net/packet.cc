@@ -66,6 +66,8 @@ Packet::Packet( const vector<uint8_t> & whole_frame,
                 const uint16_t time_since_last,
                 const uint32_t packet_send_timestamp,
                 const uint32_t frame_push_timestamp,
+                const uint16_t rtt_average,
+                const uint16_t throughput,
                 size_t & next_fragment_start )
   : valid_( true ),
     connection_id_( connection_id ),
@@ -77,6 +79,8 @@ Packet::Packet( const vector<uint8_t> & whole_frame,
     time_since_last_( time_since_last ),
     packet_send_timestamp_( packet_send_timestamp ),
     frame_push_timestamp_( frame_push_timestamp ), 
+    rtt_average_(rtt_average),
+    throughput_(throughput),
     payload_()
 {
   assert( not whole_frame.empty() );
@@ -104,7 +108,9 @@ Packet::Packet( const Chunk & str )
     time_since_last_( str( 18, 4 ).le32() ),
     packet_send_timestamp_( str(22, 4).le32() ),
     frame_push_timestamp_( str(26, 4).le32() ),
-    payload_( str( 30 ).to_string() )
+    rtt_average_( str(30, 2).le16() ),
+    throughput_( str(32, 2).le16() ),
+    payload_( str( 34 ).to_string() )
 {
   if ( fragment_no_ >= fragments_in_this_frame_ ) {
     throw runtime_error( "invalid packet: fragment_no_ >= fragments_in_this_frame" );
@@ -127,6 +133,8 @@ Packet::Packet()
     time_since_last_(),
     packet_send_timestamp_(),
     frame_push_timestamp_(),
+    rtt_average_(),
+    throughput_(),
     payload_()
 {}
 
@@ -144,6 +152,8 @@ string Packet::to_string() const
        + put_header_field( time_since_last_ )
        + put_header_field( packet_send_timestamp_ )
        + put_header_field( frame_push_timestamp_ )
+       + put_header_field( rtt_average_ )
+       + put_header_field( throughput_ )
        + payload_;
 }
 
@@ -160,6 +170,8 @@ FragmentedFrame::FragmentedFrame( const uint16_t connection_id,
                                   const uint32_t frame_no,
                                   const uint32_t time_since_last,
                                   const uint32_t frame_push_timestamp,
+                                  const uint16_t rtt_average,
+                                  const uint16_t throughput,
                                   const vector<uint8_t> & whole_frame )
   : connection_id_( connection_id ),
     source_state_( source_state ),
@@ -167,6 +179,8 @@ FragmentedFrame::FragmentedFrame( const uint16_t connection_id,
     frame_no_( frame_no ),
     fragments_in_this_frame_(),
     frame_push_timestamp_(frame_push_timestamp),
+    rtt_average_(rtt_average),
+    throughput_(throughput),
     fragments_(),
     remaining_fragments_( 0 )
 {
@@ -176,7 +190,8 @@ FragmentedFrame::FragmentedFrame( const uint16_t connection_id,
         fragment_no++ ) {
     uint32_t packet_send_timestamp = static_cast<uint32_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     fragments_.emplace_back( whole_frame, connection_id, source_state_, target_state_,
-                             frame_no, fragment_no, 0, packet_send_timestamp, frame_push_timestamp, next_fragment_start );
+                             frame_no, fragment_no, 0, packet_send_timestamp, frame_push_timestamp, rtt_average, 
+                             throughput, next_fragment_start );
   }
 
   fragments_.front().set_time_to_next( time_since_last );
@@ -198,6 +213,8 @@ FragmentedFrame::FragmentedFrame( const uint16_t connection_id,
     frame_no_( packet.frame_no() ),
     fragments_in_this_frame_( packet.fragments_in_this_frame() ),
     frame_push_timestamp_( packet.frame_push_timestamp() ),
+    rtt_average_( packet.rtt_average() ),
+    throughput_( packet.throughput() ),
     fragments_( packet.fragments_in_this_frame() ),
     remaining_fragments_( packet.fragments_in_this_frame() )
 {
@@ -308,7 +325,7 @@ AckPacket::AckPacket( const uint16_t connection_id, const uint32_t frame_no,
                       const uint16_t fragment_no, const uint32_t avg_delay,
                       const uint32_t current_state, const uint32_t packet_send_timestamp, 
                       const uint32_t ack_delay, const uint32_t frame_one_way_delay, const uint16_t frame_finish_state, 
-                      std::deque<uint32_t> complete_states )
+                      std::deque<uint32_t> complete_states)
   : connection_id_( connection_id ), frame_no_( frame_no ),
     fragment_no_( fragment_no ), avg_delay_( avg_delay ),
     current_state_( current_state ), packet_send_timestamp_(packet_send_timestamp),

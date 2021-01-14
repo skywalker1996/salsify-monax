@@ -91,6 +91,36 @@ public:
   uint32_t int_value() const { return static_cast<uint32_t>( value_ ); }
 };
 
+class AverageRTT
+{
+    private:
+      double value_ = 1.0;
+      
+      double sum = 0.0;
+      size_t count = 0;
+
+
+    public:
+
+      void add( const double RTT )
+      {
+        sum += RTT;
+        count += 1;
+      }
+
+      double getAvgRTT(){
+        if(count==0){
+          return 0;
+        }
+        double res = sum/count;
+        sum = 0.0;
+        count = 0;
+
+        return res;
+      }
+
+};
+
 struct EncodeJob
 {
   string name;
@@ -283,10 +313,14 @@ int main( int argc, char *argv[] )
   /* make pacer to smooth out outgoing packets */
   Pacer pacer;
   
-  uint32_t RealRTT = 100.0;
+  double RealRTT = 100.0;
+  double AvgRTT = 0.0;
   double frame_one_way_delay = 50.0;
   unsigned int inter_send_delay = 500; //us
   double Throughput = 0.0;
+
+  AverageRTT AvgRTTCal;
+
 
   
 
@@ -650,6 +684,8 @@ int main( int argc, char *argv[] )
                            frame_no,
                            static_cast<uint32_t>( duration_cast<microseconds>( system_clock::now() - last_sent ).count() ),
                            frame_push_timestamp,
+                           uint16_t(AvgRTT*100),
+                           uint16_t(Throughput*100),
                            output.frame };
       /* enqueue the packets to be sent */
       /* send 5x faster than packets are being received */
@@ -668,11 +704,11 @@ int main( int argc, char *argv[] )
         CC_Monax.setSrtLossSeqStatus(0);
 
         CC_Monax.calcCCPara();
-        cout << "[sendperiod]:" << inter_send_delay << endl;
+        // cout << "[sendperiod]:" << inter_send_delay << endl;
         inter_send_delay = CC_Monax.getSndPeriod();
       }else{
         inter_send_delay = min( 2000u, max( 500u, avg_delay / 5 ) );
-        cout << "[sendperiod]:" << inter_send_delay << endl;
+        // cout << "[sendperiod]:" << inter_send_delay << endl;
       }
 
       
@@ -744,11 +780,18 @@ int main( int argc, char *argv[] )
 
       uint32_t now = duration_cast<milliseconds>( system_clock::now().time_since_epoch() ).count();
       RealRTT = now - ack.packet_send_timestamp() - ack.ack_delay();
+
+      AvgRTTCal.add(RealRTT);
       
-      cout << "[RTT]:" << RealRTT << endl;
+      // cout << "[RTT]:" << RealRTT << endl;
       if(ack.frame_finish_state()==1){
-        cout << "[frame_one_way_delay]:" << ack.frame_one_way_delay() << endl;
+        
         frame_one_way_delay = ack.frame_one_way_delay();
+        AvgRTT = AvgRTTCal.getAvgRTT();
+
+        cout << "[frame_one_way_delay]:" << ack.frame_one_way_delay() << endl;
+        cout << "[RealRTT]:" << RealRTT << endl;
+        cout << "[AvgRTT]:" << AvgRTT << endl;
       }
 
       return ResultType::Continue;
@@ -772,7 +815,7 @@ int main( int argc, char *argv[] )
           if(timeCount>throughput_cal_period){
             //calculate the throughput 
             throughput_cal_start = std::chrono::system_clock::now();
-            Throughput = (data_size/pow(1024.0,2))*8;
+            Throughput = ((data_size/pow(1024.0,2))*8)/(throughput_cal_period/1000);
             cout << "[throughput]:" << Throughput << endl;
             data_size = pkt_temp.length();
           }else{

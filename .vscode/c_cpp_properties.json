@@ -5,6 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/home/librah/Desktop/workspace/opencv/**"
+                
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

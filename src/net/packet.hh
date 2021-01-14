@@ -53,6 +53,11 @@ private:
   uint32_t packet_send_timestamp_;  //microseconds
   uint32_t frame_push_timestamp_;
 
+  uint16_t rtt_average_;
+  uint16_t throughput_;
+  
+
+
   std::string payload_;
 
 public:
@@ -73,6 +78,10 @@ public:
   uint32_t time_since_last() const { return time_since_last_; }
   uint32_t packet_send_timestamp() const { return packet_send_timestamp_; } 
   uint32_t frame_push_timestamp() const { return frame_push_timestamp_; }
+
+  uint16_t rtt_average() const { return rtt_average_; }
+  uint16_t throughput() const { return throughput_; }
+
   const std::string & payload() const { return payload_; }
 
   /* setters */
@@ -91,6 +100,8 @@ public:
           const uint16_t time_to_next,
           const uint32_t packet_send_timestamp,
           const uint32_t frame_push_timestamp,
+          const uint16_t rtt_average,
+          const uint16_t throughput,
           size_t & next_fragment_start );
 
   /* construct incoming Packet */
@@ -116,6 +127,10 @@ private:
   uint16_t fragments_in_this_frame_;
   uint32_t frame_push_timestamp_;
 
+  uint16_t rtt_average_;
+  uint16_t throughput_;
+
+
   std::vector<Packet> fragments_;
 
   uint32_t remaining_fragments_;
@@ -128,6 +143,8 @@ public:
                    const uint32_t frame_no,
                    const uint32_t time_to_next_frame,
                    const uint32_t frame_push_timestamp,
+                   const uint16_t rtt_average,
+                   const uint16_t throughput,
                    const std::vector<uint8_t> & whole_frame );
 
   /* construct incoming FragmentedFrame from a Packet */
@@ -167,6 +184,8 @@ public:
       frame_no_( other.frame_no_ ),
       fragments_in_this_frame_( other.fragments_in_this_frame_ ),
       frame_push_timestamp_(other.frame_push_timestamp_),
+      rtt_average_(other.rtt_average_),
+      throughput_(other.throughput_),
       fragments_( move( other.fragments_ ) ),
       remaining_fragments_( other.remaining_fragments_ )
   {}

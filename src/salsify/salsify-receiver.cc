@@ -57,10 +57,18 @@
 #include "paranoid.hh"
 #include "procinfo.hh"
 #include "../uWebSockets/App.h"
+#include "json.hpp"
+#include "jsoncpp.cpp"
 
 using namespace std;
 using namespace std::chrono;
 using namespace PollerShortNames;
+
+int img_id = 1;
+
+double frame_one_way_delay;
+double AvgRTT;
+double sending_throughput;
 
 
 struct PerSocketData {
@@ -131,14 +139,14 @@ void SendPicture(){
       },
 
       .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
+
             std::string imageDir = "/home/librah/Desktop/workspace/images/";
             std::string imageName;
             std::string imagePath;
             std::string_view image;
-            std::string FILENAME=imageDir +std::string(message)+ ".jpg";
+            std::string FILENAME=imageDir + std::to_string(img_id)+ ".jpg";
             ifstream inFile;
             inFile.open(FILENAME, ios::in);
-
 
             while(!inFile){
               usleep(10000);
@@ -152,9 +160,18 @@ void SendPicture(){
               imageName = std::string(message) + ".jpg";
               imagePath = imageDir + imageName;
               image = ReadImage(imagePath);
-              ws->send(image);
-              remove((char*)imagePath.c_str());
 
+              jsonxx::json monitor_info;
+              monitor_info["frame_one_way_delay"] = frame_one_way_delay;
+              monitor_info["AvgRTT"] = AvgRTT;
+              monitor_info["sending_throughput"] = sending_throughput;
+
+              ws->send(image);
+              ws->send(monitor_info.dump());
+
+              // ws->send(image);
+              remove((char*)imagePath.c_str());
+              img_id+=1;
       },
       .drain = [](auto */*ws*/) {
           /* Check ws->getBufferedAmount() here */
@@ -169,13 +186,13 @@ void SendPicture(){
           /* You may access ws->getUserData() here */
           std::cout << "Connection Closed!" << std::endl;
       }
+
   }).listen(9001, [](auto *listen_socket) {
       if (listen_socket) {
           std::cout << "Listening on port " << 9001 << std::endl;
       }
   }).run();
 }
-
 
 
 void usage( const char *argv0 )
@@ -241,6 +258,7 @@ int main( int argc, char *argv[] )
   bool fullscreen = false;
   bool verbose = false;
 
+
   const option command_line_options[] = {
     { "fullscreen", no_argument, nullptr, 'f' },
     { "verbose",    no_argument, nullptr, 'v' },
@@ -289,7 +307,7 @@ int main( int argc, char *argv[] )
 
   /* construct display thread */
   thread( [&player, fullscreen]() { display_task( player.example_raster(), fullscreen ); } ).detach();
-   thread (SendPicture).detach();
+  thread (SendPicture).detach();
 
   /* frame no => FragmentedFrame; used when receiving packets out of order */
   unordered_map<size_t, FragmentedFrame> fragmented_frames;
@@ -298,7 +316,7 @@ int main( int argc, char *argv[] )
   /* EWMA */
   AverageInterPacketDelay avg_delay;
 
-  uint32_t frame_one_way_delay;
+
 
   /*end to end delay */
   uint32_t frame_push_timestamp_last;
@@ -341,6 +359,8 @@ int main( int argc, char *argv[] )
              << ", display previous frame(s)." << endl;
         
         frame_one_way_delay = now_t - frame_push_timestamp_last;
+        AvgRTT = packet.rtt_average()/double(100);
+        sending_throughput = packet.throughput()/double(100);
 
         // cout << "======================================================" << endl;
         // cout << "frame level one way dealy = " << frame_one_way_delay << endl;
@@ -411,8 +431,11 @@ int main( int argc, char *argv[] )
         enqueue_frame( player, fragment.frame() );
         
         frame_one_way_delay = now_t - frame_push_timestamp_last;
+        AvgRTT = packet.rtt_average()/double(100);
+        sending_throughput = packet.throughput()/double(100);
         // cout << "======================================================" << endl;
         // cout << "frame level one way dealy = " << frame_one_way_delay << endl;
+        // cout << "AvgRTT*100 = " << packet.rtt_average() << endl;
         // cout << "======================================================" << endl;
 
         // state "after" applying the frame
@@ -435,6 +458,8 @@ int main( int argc, char *argv[] )
       AckPacket( connection_id, packet.frame_no(), packet.fragment_no(),
                  avg_delay.int_value(), current_state, packet.packet_send_timestamp(),
                  ack_delay, frame_one_way_delay, frame_finish_state, complete_states ).sendto( socket, new_fragment.source_address );
+
+
 
       auto now = system_clock::now();
 
