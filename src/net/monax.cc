@@ -40,7 +40,6 @@ void Monax::setRealRtt(double RealRtt) {
 }
 
 
-
 void Monax::setFlightSize(int flightSize){
     this->flightSize = flightSize;
 

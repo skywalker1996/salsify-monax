@@ -17,6 +17,8 @@ state = STOP
 
 start_flag = False
 
+TRACE_BASE = './traces/Belgium_4GLTE'
+
 
 def check_ffmpeg():
 	p = Popen("ps aux | grep ffmpeg",stdout=subprocess.PIPE, shell=True)
@@ -65,16 +67,23 @@ async def agent(websocket, path):
 	while(True):
 		msg = await websocket.recv()
 		commands = json.loads(msg)
-
+		print(commands)
 		print(f"recv cmd {commands['cmd']}")
 
 		if(commands['cmd']=='initialize'):
+			## kill existing process
 			p = Popen(f"sh ./stop.sh", stdout=subprocess.PIPE, shell=True)
 			stdout,stderr = p.communicate()
 			state = STOP
+			## get trace list
+			p = Popen(f"ls {TRACE_BASE}",stdout=subprocess.PIPE, shell=True)
+			stdout,stderr = p.communicate()
+			output = stdout.decode()
+			traces = output.split('\n')
 			res = {}
 			res['cmd'] = 'initialize'
 			res['result'] = 'success'
+			res['traces'] = traces
 			await websocket.send(json.dumps(res))
 
 		elif(commands['cmd']=='check-state'):
@@ -115,7 +124,7 @@ async def agent(websocket, path):
 				return 
 			check_output = check_state()
 			if(check_output==STOP):
-				p = Popen(f"sh ./run_mahimahi.sh {commands['method']}",stdout=subprocess.PIPE, shell=True)
+				p = Popen(f"sh ./run_mahimahi.sh {commands['method']} {commands['trace']}",stdout=subprocess.PIPE, shell=True)
 				stdout,stderr = p.communicate()
 				state = RUNNING
 				res = {}

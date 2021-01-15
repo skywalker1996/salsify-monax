@@ -710,7 +710,6 @@ int main( int argc, char *argv[] )
         inter_send_delay = min( 2000u, max( 500u, avg_delay / 5 ) );
         // cout << "[sendperiod]:" << inter_send_delay << endl;
       }
-
       
       for ( const auto & packet : ff.packets() ) {
         pacer.push( packet.to_string(), inter_send_delay );
