@@ -63,3 +63,4 @@ Makefile.in
 /src/tests/encoder_test_vectors/
 /src/tests/encoder_output/
 /src/tests/convergence_test/
+./images/*
