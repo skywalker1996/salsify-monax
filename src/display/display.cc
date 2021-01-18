@@ -223,7 +223,7 @@ void VideoDisplay::screenCapture(int width_, int height_){
   glReadPixels(0, 0, width_, height_, GL_BGR, GL_UNSIGNED_BYTE, pixels);
   numbers++;
   // FIBITMAP* image = FreeImage_ConvertFromRawBits(pixels, width_, height_, 3*width_, 24, 0.409, 0.208, 0.383, false);
-  string FILENAME="/home/librah/Desktop/workspace/images/"+to_string(numbers)+".jpg";
+  string FILENAME="./images/"+to_string(numbers)+".jpg";
   // FreeImage_Save(FIF_BMP, image, (char*)FILENAME.c_str(), 0);
   // // Free resources
   // FreeImage_Unload(image);

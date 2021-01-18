@@ -128,7 +128,7 @@ void SendPicture(){
   uWS::App().ws<PerSocketData>("/*", {
       /* Settings */
       .compression = uWS::SHARED_COMPRESSOR,
-      .maxPayloadLength = 16 * 1024,
+      .maxPayloadLength = 128 * 1024,
       .idleTimeout = 0,
       .maxBackpressure = 1 * 1024 * 1024,
       /* Handlers */
@@ -140,26 +140,29 @@ void SendPicture(){
 
       .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
 
-            std::string imageDir = "/home/librah/Desktop/workspace/images/";
+            std::string imageDir = "./images/";
             std::string imageName;
             std::string imagePath;
             std::string_view image;
             std::string FILENAME=imageDir + std::to_string(img_id)+ ".jpg";
-            ifstream inFile;
-            inFile.open(FILENAME, ios::in);
+            std::string FILENAME_next=imageDir + std::to_string(img_id+1)+ ".jpg";
+            cout<<"read image file: "<<FILENAME<<endl;
+            ifstream inFile(FILENAME_next, ifstream::in | ios::binary);
+            // inFile.open(FILENAME, ios::in);
 
-            while(!inFile){
-              usleep(10000);
-              inFile.open(FILENAME,ios::in);
-            }
+            // while(!inFile){
+            //   usleep(10000);
+            //   inFile.open(FILENAME,ios::in);
+            // }
+            
 
-              // inFile.open(FILENAME,ios::in);
-              // if(!inFile){
-              //   return;
-              // }
-              imageName = std::string(message) + ".jpg";
-              imagePath = imageDir + imageName;
-              image = ReadImage(imagePath);
+            // // inFile.open(FILENAME,ios::in);
+            if(!inFile){
+              cout<<"image read error (null)!!!"<<endl;
+            }else{
+              // imageName = std::string(message) + ".jpg";
+              // imagePath = imageDir + imageName;
+              image = ReadImage(FILENAME);
 
               jsonxx::json monitor_info;
               monitor_info["frame_one_way_delay"] = frame_one_way_delay;
@@ -170,8 +173,12 @@ void SendPicture(){
               ws->send(monitor_info.dump());
 
               // ws->send(image);
-              remove((char*)imagePath.c_str());
               img_id+=1;
+              // remove((char*)imagePath.c_str());
+              remove(FILENAME.c_str());
+            }
+
+            
       },
       .drain = [](auto */*ws*/) {
           /* Check ws->getBufferedAmount() here */
@@ -344,7 +351,7 @@ int main( int argc, char *argv[] )
 
       uint32_t now_t = static_cast<uint32_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
 
-      uint32_t packey_one_way_delay = now_t - packet.packet_send_timestamp();
+      uint32_t packet_one_way_delay = now_t - packet.packet_send_timestamp();
       // cout << "packet level one way dealy = " << packey_one_way_delay << endl;
 
       if ( packet.frame_no() < next_frame_no ) {

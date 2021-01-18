@@ -5,6 +5,8 @@ import json
 from subprocess import Popen
 import socket
 import subprocess
+import os
+import numpy as np
 
 
 STOP = 0
@@ -59,6 +61,33 @@ def check_state():
 	
 	return state
 
+def log_analyze(log_file):
+	
+	RTT_log = []
+	frame_oneway_delay_log = []
+	throughput_log = []
+	
+	with open(log_file) as f:
+		line = f.readline()
+		while(line):
+			title = line.split(':')[0][1:-1]
+	
+			if(title=="RealRTT"):
+				RTT_log.append(int(line.split(':')[1]))
+			elif(title=="frame_one_way_delay"):
+				frame_oneway_delay_log.append(int(line.split(':')[1]))
+			elif(title=="throughput"):
+				throughput_log.append(float(line.split(':')[1]))
+				
+			line = f.readline()
+			
+		result = {}
+		result["RTT_average"] = round(np.mean(RTT_log), 2)
+		result["frame_delay_average"] = round(np.mean(frame_oneway_delay_log), 2)
+		result["throughput_average"] = round(np.mean(throughput_log), 2)
+
+		return result
+	
 
 async def agent(websocket, path):
 	global state
@@ -84,6 +113,15 @@ async def agent(websocket, path):
 			res['cmd'] = 'initialize'
 			res['result'] = 'success'
 			res['traces'] = traces
+			await websocket.send(json.dumps(res))
+
+		elif(commands['cmd']=='clean'):
+			p = Popen(f"sh ./stop.sh", stdout=subprocess.PIPE, shell=True)
+			stdout,stderr = p.communicate()
+			state = STOP
+			res = {}
+			res['cmd'] = 'clean'
+			res['result'] = 'success'
 			await websocket.send(json.dumps(res))
 
 		elif(commands['cmd']=='check-state'):
@@ -124,7 +162,8 @@ async def agent(websocket, path):
 				return 
 			check_output = check_state()
 			if(check_output==STOP):
-				p = Popen(f"sh ./run_mahimahi.sh {commands['method']} {commands['trace']}",stdout=subprocess.PIPE, shell=True)
+				trace_path = os.path.join(TRACE_BASE,commands['trace']) 
+				p = Popen(f"sh ./run_mahimahi.sh {commands['method']} {trace_path}",stdout=subprocess.PIPE, shell=True)
 				stdout,stderr = p.communicate()
 				state = RUNNING
 				res = {}
@@ -134,7 +173,6 @@ async def agent(websocket, path):
 				res = {}
 				res['cmd'] = 'start-mahimahi'
 				res['result'] = 'fail'
-
 			await websocket.send(json.dumps(res))
 			start_flag = False
 
@@ -153,13 +191,26 @@ async def agent(websocket, path):
 				res['result'] = 'fail'
 
 			await websocket.send(json.dumps(res))
-		
+
+		elif(commands['cmd']=='analyze'):
+			
+			results = log_analyze('./log/sender.log')
+			res = {}
+			res['cmd'] = 'analyze'
+			res['RTT_average'] = results['RTT_average']
+			res['frame_delay_average'] = results['frame_delay_average']
+			res['throughput_average'] = results['throughput_average']
+
+			await websocket.send(json.dumps(res))
+
 		else:
 			res = {}
 			res['cmd'] = 'error'
 			res['result'] = 'command error'
 
 			await websocket.send(json.dumps(res))
+
+		
 	
 
 start_server = websockets.serve(agent, "192.168.0.164", 9002)
