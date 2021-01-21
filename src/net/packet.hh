@@ -56,8 +56,6 @@ private:
   uint16_t rtt_average_;
   uint16_t throughput_;
   
-
-
   std::string payload_;
 
 public:
@@ -188,7 +186,7 @@ public:
       throughput_(other.throughput_),
       fragments_( move( other.fragments_ ) ),
       remaining_fragments_( other.remaining_fragments_ )
-  {}
+  {} 
 };
 
 class AckPacket

@@ -64,3 +64,4 @@ Makefile.in
 /src/tests/encoder_output/
 /src/tests/convergence_test/
 ./images/*
+./videos/*

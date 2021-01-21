@@ -348,7 +348,7 @@ int main( int argc, char *argv[] )
   }
 
   /* camera device */
-  Camera camera { 1280, 720, PIXEL_FORMAT_STRS.at( pixel_format ), camera_device };
+  Camera camera { paranoid::stoul( argv[ optind + 3 ] ), paranoid::stoul( argv[ optind + 4 ] ), PIXEL_FORMAT_STRS.at( pixel_format ), camera_device };
 
   /* construct the encoder */
   Encoder base_encoder { camera.display_width(), camera.display_height(),

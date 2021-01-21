@@ -228,6 +228,7 @@ void display_task( const VP8Raster & example_raster, bool fullscreen )
     cva.wait( lock, []() { return not display_queue.empty(); } );
 
     while( not display_queue.empty() ) {
+      // draw frames
       display.draw( display_queue.front() );
       display_queue.pop();
     }
@@ -466,8 +467,6 @@ int main( int argc, char *argv[] )
                  avg_delay.int_value(), current_state, packet.packet_send_timestamp(),
                  ack_delay, frame_one_way_delay, frame_finish_state, complete_states ).sendto( socket, new_fragment.source_address );
 
-
-
       auto now = system_clock::now();
 
       if ( verbose and next_mem_usage_report < now ) {
@@ -479,7 +478,7 @@ int main( int argc, char *argv[] )
       }
 
       frame_push_timestamp_last = packet.frame_push_timestamp();  
-
+      
       return ResultType::Continue;
     },
     [&]() { return not socket.eof(); } )

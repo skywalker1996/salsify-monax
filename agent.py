@@ -20,6 +20,7 @@ state = STOP
 start_flag = False
 
 TRACE_BASE = './traces/Belgium_4GLTE'
+VIDEO_BASE = './videos'
 
 
 def check_ffmpeg():
@@ -109,10 +110,18 @@ async def agent(websocket, path):
 			stdout,stderr = p.communicate()
 			output = stdout.decode()
 			traces = output.split('\n')
+
+			## get trace list
+			p = Popen(f"ls {VIDEO_BASE}",stdout=subprocess.PIPE, shell=True)
+			stdout,stderr = p.communicate()
+			output = stdout.decode()
+			videos = output.split('\n')
+
 			res = {}
 			res['cmd'] = 'initialize'
 			res['result'] = 'success'
 			res['traces'] = traces
+			res['videos'] = videos
 			await websocket.send(json.dumps(res))
 
 		elif(commands['cmd']=='clean'):
@@ -140,7 +149,10 @@ async def agent(websocket, path):
 				return 
 			check_output = check_state()
 			if(check_output==STOP):
-				p = Popen(f"sh ./run.sh {commands['method']}",stdout=subprocess.PIPE, shell=True)
+				video_path = os.path.join(VIDEO_BASE,commands['video']) 
+				comds = f"sh ./run.sh {commands['method']} {video_path} "
+				print(comds)
+				p = Popen(comds, stdout=subprocess.PIPE, shell=True)
 				stdout,stderr = p.communicate()
 				state = RUNNING
 				res = {}
@@ -162,8 +174,9 @@ async def agent(websocket, path):
 				return 
 			check_output = check_state()
 			if(check_output==STOP):
+				video_path = os.path.join(VIDEO_BASE,commands['video']) 
 				trace_path = os.path.join(TRACE_BASE,commands['trace']) 
-				p = Popen(f"sh ./run_mahimahi.sh {commands['method']} {trace_path}",stdout=subprocess.PIPE, shell=True)
+				p = Popen(f"sh ./run_mahimahi.sh {commands['method']} {trace_path} {video_path}",stdout=subprocess.PIPE, shell=True)
 				stdout,stderr = p.communicate()
 				state = RUNNING
 				res = {}
