@@ -22,6 +22,20 @@ start_flag = False
 TRACE_BASE = './traces/Belgium_4GLTE'
 VIDEO_BASE = './videos'
 
+def get_host_ip():
+    """
+    查询本机ip地址
+    :return:
+    """
+    try:
+        s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8',80))
+        ip=s.getsockname()[0]
+    finally:
+        s.close()
+
+    return ip
+
 
 def check_ffmpeg():
 	p = Popen("ps aux | grep ffmpeg",stdout=subprocess.PIPE, shell=True)
@@ -226,7 +240,7 @@ async def agent(websocket, path):
 		
 	
 
-start_server = websockets.serve(agent, "192.168.0.164", 9002)
+start_server = websockets.serve(agent, get_host_ip(), 9002)
 print('VStreamTEST Agent running!')
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
