@@ -99,7 +99,6 @@ class AverageRTT
       double sum = 0.0;
       size_t count = 0;
 
-
     public:
 
       void add( const double RTT )
@@ -118,7 +117,6 @@ class AverageRTT
 
         return res;
       }
-
 };
 
 struct EncodeJob
@@ -322,8 +320,6 @@ int main( int argc, char *argv[] )
   AverageRTT AvgRTTCal;
 
 
-  
-
   std::chrono::system_clock::time_point throughput_cal_start = system_clock::now();
   const int throughput_cal_period = 1000;  //ms
   int data_size = 0;  //bytes 
@@ -453,6 +449,9 @@ int main( int argc, char *argv[] )
        * this is the logic that decides which encoder to use. for example,
        * if the packet loss is huge, we can always select an encoder with a sure
        * state. */
+
+
+      // encoder1(frame1)  encoder2(frame2) ...
 
       /* if we're in 'conservative' mode, let's just encode based on something
          we're sure that is available in the receiver */

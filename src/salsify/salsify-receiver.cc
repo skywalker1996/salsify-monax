@@ -155,7 +155,6 @@ void SendPicture(){
             //   inFile.open(FILENAME,ios::in);
             // }
             
-
             // // inFile.open(FILENAME,ios::in);
             if(!inFile){
               cout<<"image read error (null)!!!"<<endl;
