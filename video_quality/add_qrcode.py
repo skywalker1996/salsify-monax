@@ -36,7 +36,6 @@ def addQrcode(input_video, output_video):
 
 		vout.write(frame)
 		cv2.imshow('video',frame)
-		vout.release()
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			vout.release()
 			break

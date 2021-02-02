@@ -56,7 +56,7 @@
 #include "display.hh"
 #include "paranoid.hh"
 #include "procinfo.hh"
-#include "../uWebSockets/App.h"
+#include "../uWebsockets/App.h"
 #include "json.hpp"
 #include "jsoncpp.cpp"
 
