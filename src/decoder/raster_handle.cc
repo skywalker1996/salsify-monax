@@ -72,11 +72,12 @@ public:
     if ( unused_rasters_.empty() ) {
       ret.reset( new RasterType( display_width, display_height ) );
     } else {
-      std::cout <<"unused_rasters " << unused_rasters_.front()->display_width() <<" , " << unused_rasters_.front()->display_height()<<std::endl;
-      std::cout << "display " << display_width <<" , " << display_height << std::endl;
+      
+      //std::cout <<"unused_rasters " << unused_rasters_.front()->display_width() <<" , " << unused_rasters_.front()->display_height()<<std::endl;
+      //std::cout << "display " << display_width <<" , " << display_height << std::endl;
       if ( (unused_rasters_.front()->display_width() != display_width ) or (unused_rasters_.front()->display_height() != display_height ) ) {
-        std::cout <<"unused_rasters " << unused_rasters_.front()->display_width() <<" , " << unused_rasters_.front()->display_height()<<std::endl;
-        std::cout << "display " << display_width <<" , " << display_height << std::endl;
+        //std::cout <<"unused_rasters " << unused_rasters_.front()->display_width() <<" , " << unused_rasters_.front()->display_height()<<std::endl;
+        //std::cout << "display " << display_width <<" , " << display_height << std::endl;
         if (RasterPoolDebug::allow_resize) {
           while (! unused_rasters_.empty()) {
             dequeue(unused_rasters_);

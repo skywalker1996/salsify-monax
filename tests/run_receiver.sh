@@ -1,1 +1,1 @@
-./src/salsify/salsify-receiver 9090 1280 720
+../src/salsify/salsify-receiver 127.0.0.1 9090 1280 720

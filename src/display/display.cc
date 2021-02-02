@@ -223,13 +223,20 @@ void VideoDisplay::screenCapture(int width_, int height_){
   glReadPixels(0, 0, width_, height_, GL_BGR, GL_UNSIGNED_BYTE, pixels);
   numbers++;
   // FIBITMAP* image = FreeImage_ConvertFromRawBits(pixels, width_, height_, 3*width_, 24, 0.409, 0.208, 0.383, false);
+
+
   string FILENAME="./images/"+to_string(numbers)+".jpg";
+
+
   // FreeImage_Save(FIF_BMP, image, (char*)FILENAME.c_str(), 0);
   // // Free resources
   // FreeImage_Unload(image);
   // delete [] pixels;
+
   IplImage *img=cvCreateImage(cvSize(width_, height_), IPL_DEPTH_8U, 3);
   img->imageData =pixels;
+
+  
   // cvWriteFrame(writer,img);
   // cv::Mat::__ct tempMat(img);
   // vector<unsigned char> buff;
@@ -252,7 +259,8 @@ void VideoDisplay::screenCapture(int width_, int height_){
     cv::flip(mat_img, mat_img_flip,0);
     cv::imwrite(FILENAME,mat_img_flip);
 
-  delete [] pixels;
+    delete[] pixels;
+    cvReleaseImage(&img);
   // cvRelease(&img);
   // IplImage* img = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 3);
   // img->imageData = (char *)raw_image;

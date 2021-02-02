@@ -70,7 +70,8 @@
         "filesystem": "cpp",
         "cfenv": "cpp",
         "valarray": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "shared_mutex": "cpp"
     },
     "python.pythonPath": "/usr/bin/python"
 }

@@ -305,7 +305,7 @@ int main( int argc, char *argv[] )
 
   /* construct Socket for incoming  datagrams */
   UDPSocket socket;
-  socket.bind( Address( "0", argv[ optind ] ) );
+  socket.bind( Address( "0", argv[ optind] ) );
   socket.set_timestamps();
 
   /* construct FramePlayer */
@@ -354,6 +354,11 @@ int main( int argc, char *argv[] )
       uint32_t packet_one_way_delay = now_t - packet.packet_send_timestamp();
       // cout << "packet level one way dealy = " << packey_one_way_delay << endl;
 
+      // cout << "size of fragmented_frames = " << fragmented_frames.size() << endl;
+      // cout << "size of decoders = " << decoders.size() << endl;
+      // cout << "size of complete_states = " << complete_states.size() << endl;
+
+      
       if ( packet.frame_no() < next_frame_no ) {
         /* we're not interested in this anymore */
         return ResultType::Continue;

@@ -184,6 +184,7 @@ EncodeOutput do_encode_job( EncodeJob && encode_job )
 
   const auto encode_ending = system_clock::now();
   const auto ms_elapsed = duration_cast<milliseconds>( encode_ending - encode_beginning );
+  // std::cout<<"encoding time  = " << ms_elapsed.count() << " ms " <<std::endl;
 
   return { move( encode_job.encoder ), move( output ), source_minihash, ms_elapsed, encode_job.name, quantizer_in_use };
 }
@@ -404,6 +405,7 @@ int main( int argc, char *argv[] )
   /* fetch frames from webcam */
   poller.add_action( Poller::Action( encode_start_pipe.second, Direction::In,
     [&]() -> Result {
+      // std::cout<<"fetch frames from webcam"<<std::endl;
       encode_start_pipe.second.read();
 
       last_raster = camera.get_next_frame();
@@ -582,6 +584,8 @@ int main( int argc, char *argv[] )
           encode_end_pipe.first.write( "1" );
         }
       ).detach();
+
+      // std::cout<<"fetch frames from webcam finished !!!"<<std::endl;
 
       return ResultType::Continue;
     } )
@@ -802,7 +806,7 @@ int main( int argc, char *argv[] )
 
         while ( pacer.ms_until_due() == 0 ) {
           assert( not pacer.empty() );
-
+          
           auto pkt_temp = pacer.front();
           //update real packet send timestamp
           const uint32_t network_order_temp = htole32( duration_cast<milliseconds>( system_clock::now().time_since_epoch() ).count() );
@@ -819,9 +823,10 @@ int main( int argc, char *argv[] )
           }else{
             data_size += pkt_temp.length();
           }
-          
+          // std::cout<<"********** start send (queue left: "<<pacer.size() << " )" << std::endl;
           socket.send( pkt_temp );
           pacer.pop();
+          // std::cout<<"********** finish send (queue left: "<<pacer.size() << " )" << std::endl;
           
         }
         return ResultType::Continue;
