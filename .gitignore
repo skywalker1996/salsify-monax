@@ -3,7 +3,7 @@
 .deps
 Makefile
 Makefile.in
-*.log
+/log/*.log
 *.trs
 *.info
 /INSTALL
