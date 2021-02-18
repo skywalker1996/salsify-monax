@@ -592,7 +592,7 @@ int main( int argc, char *argv[] )
   );
 
   /* all encode jobs have finished */
-  poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
+poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
     [&]()
     {
       /* whatever happens, encode_jobs will be empty after this block is done. */
@@ -614,7 +614,6 @@ int main( int argc, char *argv[] )
         // no encoding job has ended in time
         return ResultType::Continue;
       }
-
       /* what is the current capacity of the network,
          now that the encoding is done? */
       size_t frame_size = numeric_limits<size_t>::max();

@@ -28,6 +28,8 @@
 
 #include <getopt.h>
 
+#include <sys/stat.h>
+
 #include <cstdlib>
 #include <random>
 #include <unordered_map>
@@ -70,6 +72,12 @@ double frame_one_way_delay;
 double AvgRTT;
 double sending_throughput;
 
+
+
+inline bool exists (const std::string& name) {
+  struct stat buffer;   
+  return (stat (name.c_str(), &buffer) == 0); 
+}
 
 struct PerSocketData {
         /* Fill with user data */
@@ -139,15 +147,18 @@ void SendPicture(){
       },
 
       .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
-
+            cout<<"into the .message func with img_id = " << img_id << endl;
             std::string imageDir = "./images/";
             std::string imageName;
             std::string imagePath;
             std::string_view image;
             std::string FILENAME=imageDir + std::to_string(img_id)+ ".jpg";
             std::string FILENAME_next=imageDir + std::to_string(img_id+1)+ ".jpg";
-            cout<<"read image file: "<<FILENAME<<endl;
-            ifstream inFile(FILENAME_next, ifstream::in | ios::binary);
+            // cout<<"read image file: "<<FILENAME<<endl;
+
+            // ifstream inFile(FILENAME_next, ifstream::in | ios::binary);
+
+
             // inFile.open(FILENAME, ios::in);
 
             // while(!inFile){
@@ -156,8 +167,8 @@ void SendPicture(){
             // }
             
             // // inFile.open(FILENAME,ios::in);
-            if(!inFile){
-              cout<<"image read error (null)!!!"<<endl;
+            if(!exists(FILENAME_next)){
+              cout<<"next image not ready!!!"<<endl;
             }else{
               // imageName = std::string(message) + ".jpg";
               // imagePath = imageDir + imageName;
