@@ -8,7 +8,7 @@
 #define SAVEHISTORY 100
 #define MID 15
 #define HIGH 20
-#define RTT_THRESHOLD 50
+#define RTT_THRESHOLD 30
 #define ENSEMBLE true
 #define RTT_PREDICTION false
 #define MONITOR_LEN 10
@@ -132,7 +132,8 @@ double check_accuracy(std::vector<int> prediction, std::vector<int> label) {
             acc_count++;
         }
     }
-    return acc_count / prediction.size();
+    
+    return double(acc_count) / prediction.size();
 }
 
 
@@ -226,10 +227,6 @@ Monax::Monax(int dim, double alpha, double beta, double lambda1, double lambda2,
     
     model_history_prediction.resize(model_num);
 
-    if (ENSEMBLE == true) {
-        used_model = 0;
-    }
-
     std::vector<double> m_network_delay;
     std::vector<double> m_packet_loss;
     std::vector<double> m_send_period;
@@ -264,7 +261,7 @@ Actiongroup Monax::action(std::map< std::string, std::vector<double>> monitor_pa
 
 
     int delaysize = monitor_para["network_delay"].size();
-    delivery_rate = monitor_para["delivery_rate"][0];
+    delivery_rate = monitor_para["delivery_rate"][delaysize-1];
     // network_delay_gradient = monitor_para["network_delay"][delaysize - 1] - monitor_para["network_delay"][delaysize - 2];
     //current_loss = monitor_para["packet_loss"][monitor_para["packet_loss"].size() - 1];
     max_network_delay = std::max(monitor_para["network_delay"][delaysize - 1], monitor_para["network_delay"][delaysize - 2]);
@@ -273,13 +270,21 @@ Actiongroup Monax::action(std::map< std::string, std::vector<double>> monitor_pa
     //RTT prediction module, skip now 124-130
 
 
-    auto RTT_gradient_1 = monitor_para["network_delay"][delaysize - 3] - monitor_para["network_delay"][delaysize - 4];
-    auto RTT_gradient_2 = monitor_para["network_delay"][delaysize - 2] - monitor_para["network_delay"][delaysize - 3];
-    auto RTT_gradient_3 = monitor_para["network_delay"][delaysize - 1] - monitor_para["network_delay"][delaysize - 2];
+    double RTT_gradient_1 = monitor_para["network_delay"][delaysize - 3] - monitor_para["network_delay"][delaysize - 4];
+    double RTT_gradient_2 = monitor_para["network_delay"][delaysize - 2] - monitor_para["network_delay"][delaysize - 3];
+    double RTT_gradient_3 = monitor_para["network_delay"][delaysize - 1] - monitor_para["network_delay"][delaysize - 2];
 
+    // double rate_change = 
 
     std::vector<double>sample = { delivery_rate, monitor_para["network_delay"][delaysize - 1], RTT_gradient_1, RTT_gradient_2, RTT_gradient_3};//the size of sample should be inputDim
+    std::cout << "[sample]:"<<delivery_rate<<", "
+    <<monitor_para["network_delay"][delaysize - 3]<<", "
+    <<monitor_para["network_delay"][delaysize - 2]<<", "
+    <<monitor_para["network_delay"][delaysize - 1]<<", "
+    <<std::endl;
+    
     utility = utility_function(sample, RTT_THRESHOLD, RTT_PREDICTION);
+    std::cout << "[utility]:"<<utility<<std::endl;
 
     if (coldstart) {
 
@@ -439,21 +444,51 @@ Actiongroup Monax::action(std::map< std::string, std::vector<double>> monitor_pa
     }
 
     if (ENSEMBLE == true) {
-        if (current_monitor_para["network_delay"][delaysize - 3] > RTT_THRESHOLD && \
-            current_monitor_para["network_delay"][delaysize - 2] > RTT_THRESHOLD && \
-            current_monitor_para["network_delay"][delaysize - 1] > RTT_THRESHOLD) {
+
+        std::cout << "delayseq:" << current_monitor_para["network_delay"][delaysize - 3] 
+        << " , " << current_monitor_para["network_delay"][delaysize - 2] 
+        << " , " <<current_monitor_para["network_delay"][delaysize - 1] 
+        <<std::endl;
+
+        if (current_monitor_para["network_delay"][delaysize - 4] < current_monitor_para["network_delay"][delaysize - 3] &&
+            current_monitor_para["network_delay"][delaysize - 3] < current_monitor_para["network_delay"][delaysize - 2] && 
+            current_monitor_para["network_delay"][delaysize - 2] < current_monitor_para["network_delay"][delaysize - 1]) {
+            
+            std::cout << "changing model... "<<"used_model = "<<used_model <<" and model_num-1 = "<<(model_num-1)<<std::endl;
             if (used_model < model_num - 1) {
                 current_model += 1;
                 model_accuracy.push_back(accuracy);
                 used_model += 1;
+                std::cout << "changing model to " << current_model <<std::endl;
             }
             else {
+                // std::cout << "check_accuracy:" << model_history_prediction[0][delaysize-8] << " and "<< history_label[delaysize-8] << ", "
+                //             << model_history_prediction[0][delaysize-8] << " and "<< history_label[delaysize-8] << ", "
+                //             << model_history_prediction[0][delaysize-7] << " and "<< history_label[delaysize-7] << ", "
+                //             << model_history_prediction[0][delaysize-6] << " and "<< history_label[delaysize-6] << ", "
+                //             << model_history_prediction[0][delaysize-5] << " and "<< history_label[delaysize-5] << ", "
+                //             << model_history_prediction[0][delaysize-4] << " and "<< history_label[delaysize-4] << ", "
+                //             << model_history_prediction[0][delaysize-3] << " and "<< history_label[delaysize-3] << ", "
+                //             << model_history_prediction[0][delaysize-2] << " and "<< history_label[delaysize-2] << ", "
+                //             <<std::endl;
                 for (int i = 0; i < model_num; i++) {
                     model_accuracy[i] = check_accuracy(model_history_prediction[i], history_label);
-                    current_model = argmax(model_accuracy.begin(), model_accuracy.end());
                 }
+                current_model = argmax(model_accuracy.begin(), model_accuracy.end());
+                // std::cout << "model_accuracy:" << model_accuracy[0] << ", "
+                // << model_accuracy[1] << ", "
+                // << model_accuracy[2] << ", "
+                // << model_accuracy[3] << ", "
+                // << model_accuracy[4] << ", "
+                // << model_accuracy[5] << ", "
+                // << model_accuracy[6] << ", "
+                // << model_accuracy[7] << ", "
+                // <<std::endl;
+                std::cout << "changing model to " << current_model <<std::endl;
             }
         }
+        
+        
     }
 
     std::cout << "[prediction_prob]:" << prediction_prob << std::endl;
@@ -523,15 +558,17 @@ double Monax::utility_function(std::vector<double> sample, int RTT_threshold, bo
 
     double sending_rate_part = delivery_rate * sr_weight;
     double RTT_g_part = -1 * sample[4] - 0.8 * sample[3] - 0.5 * sample[2];
+
+    utility = RTT_g_part+sending_rate_part;
     
-    if ((network_delay - RTT_threshold) > 0) {
-        utility = RTT_g_part;
-        std::cout<<"========[slowing mode]"<<std::endl;
-    }
-    else {
-        utility = sending_rate_part;
-        std::cout<<"========[speeding mode]"<<std::endl;
-    }
+    // if ((network_delay - RTT_threshold) > 0) {
+    //     utility = RTT_g_part;
+    //     std::cout<<"========[slowing mode]"<<std::endl;
+    // }
+    // else {
+    //     utility = sending_rate_part;
+    //     std::cout<<"========[speeding mode]"<<std::endl;
+    // }
 
     std::cout<<"utility = "<< utility << std::endl;
     return utility;
@@ -603,9 +640,9 @@ double Monax::rate_control(double result) {
         if (*(history_decision.end() - 2) == 1 && *(history_decision.end() - 1) == 1) {
             speedup_step = std::min(stepsize_max, speedup_step + speedup_step_change_rate);
         }
-        std::cout << "[before decreasing base_INTERVAL]:"<<base_INTERVAL << " and " <<speedup_step <<std::endl;
+        // std::cout << "[before decreasing base_INTERVAL]:"<<base_INTERVAL << " and " <<speedup_step <<std::endl;
         base_INTERVAL = std::min(std::max(INTERVAL_MIN, base_INTERVAL - speedup_step ),INTERVAL_MAX );
-        std::cout << "[decreasing base_INTERVAL to]:"<<base_INTERVAL<<std::endl;
+        // std::cout << "[decreasing base_INTERVAL to]:"<<base_INTERVAL<<std::endl;
 
 
     }else if(result < 0.5) {
@@ -613,9 +650,9 @@ double Monax::rate_control(double result) {
         if (*(history_decision.end() - 2) == 0 && *(history_decision.end() - 1) == 0 ) {
             slowdown_step = std::min(stepsize_max, slowdown_step + slowdown_step_change_rate);
         }
-        std::cout << "[before increasing base_INTERVAL]:"<<base_INTERVAL << " and " << slowdown_step <<std::endl;
+        // std::cout << "[before increasing base_INTERVAL]:"<<base_INTERVAL << " and " << slowdown_step <<std::endl;
         base_INTERVAL = std::min(std::max(INTERVAL_MIN, base_INTERVAL + slowdown_step ), INTERVAL_MAX);
-        std::cout << "[increasing base_INTERVAL]:"<<base_INTERVAL<<std::endl;
+        // std::cout << "[increasing base_INTERVAL]:"<<base_INTERVAL<<std::endl;
 
     }
 

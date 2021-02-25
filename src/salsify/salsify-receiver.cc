@@ -179,13 +179,13 @@ void SendPicture(){
               monitor_info["AvgRTT"] = AvgRTT;
               monitor_info["sending_throughput"] = sending_throughput;
 
-              ws->send(image);
+              // ws->send(image); 
               ws->send(monitor_info.dump());
 
               // ws->send(image);
               img_id+=1;
               // remove((char*)imagePath.c_str());
-              remove(FILENAME.c_str());
+              // remove(FILENAME.c_str());
             }
 
             

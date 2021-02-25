@@ -706,7 +706,7 @@ poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
         CC_Monax.setSrtLossSeqStatus(0);
 
         CC_Monax.calcCCPara();
-        // cout << "[sendperiod]:" << inter_send_delay << endl;
+        cout << "[sendperiod]:" << inter_send_delay << endl;
         inter_send_delay = CC_Monax.getSndPeriod();
       }else{
         inter_send_delay = min( 2000u, max( 500u, avg_delay / 5 ) );
