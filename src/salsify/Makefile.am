@@ -8,7 +8,7 @@ JSONCPP_CPPFLAGS = -I$(srcdir)/../util/jsoncpp
 AM_LDFLAGS = $(STATIC_BUILD_FLAG)
 BASE_LDADD = ../input/libalfalfainput.a ../decoder/libalfalfadecoder.a ../util/libalfalfautil.a $(X264_LIBS) $(JPEG_LIBS)
 
-LIBS = `pkg-config opencv4 --libs` -ljpeg -lz
+LIBS = `pkg-config opencv4 --libs` -ljpeg -lz -pthread
 
 VP8PLAY_BUILD :=
 if BUILDVP8PLAY

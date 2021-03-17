@@ -159,6 +159,8 @@ public:
 
   bool complete() const;
 
+  int remaining_fragments();
+
   /* getters */
   uint16_t connection_id() const { return connection_id_; }
   uint32_t source_state() const { return source_state_; }

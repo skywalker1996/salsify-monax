@@ -22,9 +22,11 @@ start_flag = False
 TRACE_BASE = './traces/Belgium_4GLTE'
 VIDEO_BASE = './videos'
 
+log_file = ""
+
 def get_host_ip():
     """
-    查询本机ip地址
+    ²éÑ¯±¾»úipµØÖ·
     :return:
     """
     try:
@@ -91,7 +93,7 @@ def log_analyze(log_file):
 				RTT_log.append(int(line.split(':')[1]))
 			elif(title=="frame_one_way_delay"):
 				frame_oneway_delay_log.append(int(line.split(':')[1]))
-			elif(title=="throughput"):
+			elif(title=="send_throughput"):
 				throughput_log.append(float(line.split(':')[1]))
 				
 			line = f.readline()
@@ -165,6 +167,7 @@ async def agent(websocket, path):
 			if(check_output==STOP):
 				video_path = os.path.join(VIDEO_BASE,commands['video']) 
 				comds = f"sh ./run.sh {commands['method']} {video_path} "
+				log_file = f"sender_{commands['method']}"
 				print(comds)
 				p = Popen(comds, stdout=subprocess.PIPE, shell=True)
 				stdout,stderr = p.communicate()
@@ -190,7 +193,8 @@ async def agent(websocket, path):
 			if(check_output==STOP):
 				video_path = os.path.join(VIDEO_BASE,commands['video']) 
 				trace_path = os.path.join(TRACE_BASE,commands['trace']) 
-				p = Popen(f"sh ./run_mahimahi.sh {commands['method']} {trace_path} {video_path}",stdout=subprocess.PIPE, shell=True)
+				log_file = f"sender_{commands['method']}_{commands['trace'].split('.')[0]}.log"
+				p = Popen(f"sh ./run_mahimahi.sh {commands['method']} {trace_path} {video_path} {commands['trace'].split('.')[0]}",stdout=subprocess.PIPE, shell=True)
 				stdout,stderr = p.communicate()
 				state = RUNNING
 				res = {}
@@ -221,7 +225,7 @@ async def agent(websocket, path):
 
 		elif(commands['cmd']=='analyze'):
 			
-			results = log_analyze('./log/sender.log')
+			results = log_analyze(f'./log/{log_file}')
 			res = {}
 			res['cmd'] = 'analyze'
 			res['RTT_average'] = results['RTT_average']

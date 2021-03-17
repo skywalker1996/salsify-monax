@@ -71,6 +71,13 @@ int img_id = 1;
 double frame_one_way_delay;
 double AvgRTT;
 double sending_throughput;
+double recv_throughput;
+
+double frame_loss_rate = 0.0;
+
+std::chrono::system_clock::time_point throughput_cal_start = system_clock::now();
+const int throughput_cal_period = 100;  //ms
+int data_size = 0;  //bytes 
 
 
 
@@ -147,32 +154,28 @@ void SendPicture(){
       },
 
       .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
-            cout<<"into the .message func with img_id = " << img_id << endl;
+            
+            // cout<<"into the .message func with img_id = " << img_id << endl;
+            // cout << "[info]:"<<"recv msg from frontend!"<<endl;
             std::string imageDir = "./images/";
             std::string imageName;
             std::string imagePath;
             std::string_view image;
             std::string FILENAME=imageDir + std::to_string(img_id)+ ".jpg";
             std::string FILENAME_next=imageDir + std::to_string(img_id+1)+ ".jpg";
-            // cout<<"read image file: "<<FILENAME<<endl;
+            // std::string FILENAME_next_next=imageDir + std::to_string(img_id+2)+ ".jpg";
 
-            // ifstream inFile(FILENAME_next, ifstream::in | ios::binary);
-
-
-            // inFile.open(FILENAME, ios::in);
-
-            // while(!inFile){
-            //   usleep(10000);
-            //   inFile.open(FILENAME,ios::in);
-            // }
-            
-            // // inFile.open(FILENAME,ios::in);
             if(!exists(FILENAME_next)){
-              cout<<"next image not ready!!!"<<endl;
+              // if(exists(FILENAME_next_next)){
+              //   img_id+=1;
+              //   return;
+              // }
+              // cout<<"next image not ready!!!"<<endl;
+              // cout << "[info]:"<<"next image not ready!!!"<<img_id<<endl;
+              return;
             }else{
-              // imageName = std::string(message) + ".jpg";
-              // imagePath = imageDir + imageName;
               image = ReadImage(FILENAME);
+              // cout << "[info]:"<<"send the data!!!"<<endl;
 
               jsonxx::json monitor_info;
               monitor_info["frame_one_way_delay"] = frame_one_way_delay;
@@ -182,9 +185,7 @@ void SendPicture(){
               // ws->send(image); 
               ws->send(monitor_info.dump());
 
-              // ws->send(image);
               img_id+=1;
-              // remove((char*)imagePath.c_str());
               // remove(FILENAME.c_str());
             }
 
@@ -334,6 +335,12 @@ int main( int argc, char *argv[] )
   /* EWMA */
   AverageInterPacketDelay avg_delay;
 
+  /* frame level throughput */
+  uint32_t current_send_frame_id = -1;
+  std::chrono::system_clock::time_point frame_throughput_cal_start;
+  int frame_data_size = 0; //bytes
+  double frame_recv_throughput = 0.0;
+
 
 
   /*end to end delay */
@@ -385,6 +392,8 @@ int main( int argc, char *argv[] )
         AvgRTT = packet.rtt_average()/double(100);
         sending_throughput = packet.throughput()/double(100);
 
+        frame_loss_rate = (double)fragmented_frames.at(next_frame_no).remaining_fragments()/(double)fragmented_frames.at(next_frame_no).fragments_in_this_frame();
+        // cout << "[frame_loss_rate]:"<< frame_loss_rate<<endl;
         // cout << "======================================================" << endl;
         // cout << "frame level one way dealy = " << frame_one_way_delay << endl;
         // cout << "======================================================" << endl;
@@ -456,6 +465,9 @@ int main( int argc, char *argv[] )
         frame_one_way_delay = now_t - frame_push_timestamp_last;
         AvgRTT = packet.rtt_average()/double(100);
         sending_throughput = packet.throughput()/double(100);
+
+        frame_loss_rate = 0.0;
+        // cout << "[frame_loss_rate]:"<< frame_loss_rate<<endl;
         // cout << "======================================================" << endl;
         // cout << "frame level one way dealy = " << frame_one_way_delay << endl;
         // cout << "AvgRTT*100 = " << packet.rtt_average() << endl;
@@ -475,6 +487,37 @@ int main( int argc, char *argv[] )
         fragmented_frames.erase( next_frame_no );
         next_frame_no++;
       }
+
+      auto cur_frame_id = packet.frame_no();
+        //initialize
+        if(current_send_frame_id==-1){
+          current_send_frame_id = cur_frame_id;
+          frame_throughput_cal_start = std::chrono::system_clock::now();
+          frame_data_size = 0;
+        }
+
+        if((cur_frame_id != current_send_frame_id)){
+          current_send_frame_id = cur_frame_id;
+          int frame_send_time = duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now() - frame_throughput_cal_start).count();
+          frame_recv_throughput = (((frame_data_size/pow(1024.0,2))*8)/frame_send_time)*1000;
+          cout << "[frame_recv_throughput]:"<< frame_recv_throughput<<endl;
+          frame_throughput_cal_start = std::chrono::system_clock::now();
+          frame_data_size = 0;
+        }else{
+          frame_data_size+=new_fragment.payload.length();
+        }
+
+        int timeCount = duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now() - throughput_cal_start).count();
+        if(timeCount>throughput_cal_period){
+          //calculate the throughput 
+          throughput_cal_start = std::chrono::system_clock::now();
+          recv_throughput = (((data_size/pow(1024.0,2))*8)/throughput_cal_period)*1000;
+          cout << "[recv_throughput]:" << recv_throughput << endl;
+          data_size = new_fragment.payload.length();
+        }else{
+          data_size += new_fragment.payload.length();
+        }
+        
 
       avg_delay.add( new_fragment.timestamp_us, packet.time_since_last() );
       uint32_t ack_delay = duration_cast<milliseconds>( system_clock::now().time_since_epoch() ).count() - ack_start;
@@ -501,7 +544,7 @@ int main( int argc, char *argv[] )
 
   /* handle events */
   while ( true ) {
-    const auto poll_result = poller.poll( -1 );
+    const auto poll_result = poller.poll( -1 ); 
     if ( poll_result.result == Poller::Result::Type::Exit ) {
       return poll_result.exit_status;
     }

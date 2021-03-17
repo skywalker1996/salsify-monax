@@ -28,10 +28,19 @@
 
 #include "exception.hh"
 #include "display.hh"
-// #include <GL/glut.h>
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc_c.h>
+#include <opencv2/imgproc/types_c.h>
+#include <opencv2/highgui/highgui_c.h>       
+
+#include <thread>
+
+
 using namespace std;
 
-int numbers=0;
+GLuint readBuffer;
 
 const string VideoDisplay::shader_source_scale_from_pixel_coordinates
 = R"( #version 130
@@ -169,9 +178,6 @@ void VideoDisplay::resize( const pair<unsigned int, unsigned int> & target_size 
   glCheck( "after resizing ");
 }
 
-// void VideoDisplay::setupVideoWriting(){
-//   writer = cvCreateVideoWriter("out.avi", CV_FOURCC('j', 'p', 'e', 'g'), 24, cvSize(width_, height_), 1);
-// }
 void VideoDisplay::draw( const BaseRaster & raster )
 {
   if ( width_ != raster.width() or height_ != raster.height() ) {
@@ -199,38 +205,71 @@ void VideoDisplay::repaint( void )
   texture_shader_array_object_.bind();
   texture_shader_program_.use();
   glDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
-  screenCapture(display_width_,display_height_);
-  // int argc = 1;
-  // char *argv[1] = {(char*)"Something"};
-  // glutInit(&argc, argv);
-  // glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
-  // glutInitWindowSize(width_, height_);
-  // glutCreateWindow("Hello World");
-  // glewInit();
-  // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-  // glClear(GL_COLOR_BUFFER_BIT);
-  // glViewport(0, 0, width_, height_);
-  // glutSwapBuffers();
+
+  screenCapture(display_width_, display_height_, false);
+  
   current_context_window_.window_.swap_buffers();
-  // screenCapture(display_width_,display_height_);
 }
 
-void VideoDisplay::screenCapture(int width_, int height_){
 
-  char* pixels = new char[3*width_ * height_];
-  glReadPixels(0, 0, width_, height_, GL_BGR, GL_UNSIGNED_BYTE, pixels);
-  numbers++;
+void VideoDisplay::screenCapture(int width, int height, bool pboUsed)
+/*
+ * Save the screen captured to image whether using pbo or not
+ */
+{
+  char* pixels = new char[3*width*height];
 
-  string FILENAME="./images/"+to_string(numbers)+".jpg";
+  if(pboUsed) // with PBO
+  {
+    
+    glGenBuffers(1, &readBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER,readBuffer);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(float)*width*height*3,NULL,GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
 
-  IplImage *img=cvCreateImage(cvSize(width_, height_), IPL_DEPTH_8U, 3);
-  img->imageData =pixels;
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, readBuffer);
+    glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, NULL);
 
-    cv::Mat mat_img=cv::cvarrToMat(img);
-    cv::Mat mat_img_flip;
-    cv::flip(mat_img, mat_img_flip,0);
-    cv::imwrite(FILENAME,mat_img_flip);
+    void *data = (void *)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
 
-    delete[] pixels;
-    cvReleaseImage(&img);
+    if(data)
+    {
+      // memcpy(pixels, data, 3*width*height);
+      // release pointer to the mapped buffer
+      glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+    }
+
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+  }
+  else //without PBO
+  {
+    // get the pixel data from GPU render
+    glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, pixels);
+  }
+
+  // create one thread to save images
+  thread t(saveImage,pixels,width,height);
+  t.detach();
+  
+}
+void VideoDisplay::saveImage(char* pixels, int width, int height)
+{
+  static int img_id = 1;
+  // build an object of image type
+  IplImage *image = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 3);
+  image->imageData = pixels;
+
+  // save the image data to file 
+  cv::Mat image_mat = cv::cvarrToMat(image);
+  cv::Mat image_mat_flip;
+  cv::flip(image_mat, image_mat_flip, 0);
+
+  string imagePath = "./images/"+to_string(img_id++)+".jpg";
+  // std::cout<<"[info]:"<<"save image #"<<img_id<<std::endl;
+  cv::imwrite(imagePath, image_mat_flip);
+
+  delete[] pixels;
+  cvReleaseImage(&image);
+
+  // img_id+=1;
 }

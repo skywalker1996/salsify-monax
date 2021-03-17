@@ -280,6 +280,10 @@ bool FragmentedFrame::complete() const
   return remaining_fragments_ == 0;
 }
 
+int FragmentedFrame::remaining_fragments(){
+  return this->remaining_fragments_;
+}
+
 const vector<Packet> & FragmentedFrame::packets() const
 {
   if ( (not complete()) or (fragments_.size() != fragments_in_this_frame_) ) {

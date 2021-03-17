@@ -317,13 +317,20 @@ int main( int argc, char *argv[] )
   double frame_one_way_delay = 50.0;
   unsigned int inter_send_delay = 500; //us
   double Throughput = 0.0;
+  double frame_send_throughput = 0.0;
+
+  uint32_t current_send_frame_id = -1;
 
   AverageRTT AvgRTTCal;
 
 
   std::chrono::system_clock::time_point throughput_cal_start = system_clock::now();
-  const int throughput_cal_period = 1000;  //ms
+  const int throughput_cal_period = 100;  //ms
   int data_size = 0;  //bytes 
+
+  std::chrono::system_clock::time_point frame_throughput_cal_start;
+  int frame_data_size = 0; //bytes
+
   
 
   /* get connection_id */
@@ -651,6 +658,8 @@ poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
           }
         }
 
+        cout<<"[target_size]:"<<frame_size <<"|"<<good_outputs[0].frame.size()<<"|"<<good_outputs[1].frame.size()<<endl;
+
         if ( best_output_index == numeric_limits<size_t>::max() ) {
           if ( skipped_count < MAX_SKIPPED or good_outputs.back().job_name != "fail-small" ) {
             /* skip frame */
@@ -669,6 +678,9 @@ poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
       }
 
       auto output = move( good_outputs[ best_output_index ] );
+
+      cout<<"[final_size]:" << good_outputs[ best_output_index ].frame.size() << endl;
+
 
       uint32_t target_minihash = output.encoder.minihash();
 
@@ -693,7 +705,7 @@ poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
       /* send 5x faster than packets are being received */
 
       if(rateControl == RateControl::monax){
-        CC_Monax.setRealRtt(RealRTT);
+        CC_Monax.setRealRtt(AvgRTT);
         CC_Monax.setDeliveryRate(Throughput);
         if(!cumulative_fpf.empty()){
           CC_Monax.setFlightSize(cumulative_fpf.back() - last_acked);
@@ -710,7 +722,7 @@ poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
         inter_send_delay = CC_Monax.getSndPeriod();
       }else{
         inter_send_delay = min( 2000u, max( 500u, avg_delay / 5 ) );
-        // cout << "[sendperiod]:" << inter_send_delay << endl;
+        cout << "[sendperiod]:" << inter_send_delay << endl;
       }
       
       for ( const auto & packet : ff.packets() ) {
@@ -793,6 +805,7 @@ poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
         cout << "[frame_one_way_delay]:" << ack.frame_one_way_delay() << endl;
         cout << "[RealRTT]:" << RealRTT << endl;
         cout << "[AvgRTT]:" << AvgRTT << endl;
+        cout << "[arrival_interval]:" << avg_delay << endl;
       }
 
       return ResultType::Continue;
@@ -812,12 +825,33 @@ poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
           const string packet_send_timestamp_temp = string( reinterpret_cast<const char *>( &network_order_temp ),sizeof( network_order_temp ) );
           pkt_temp.replace(22,4,packet_send_timestamp_temp);
 
-          const int timeCount = duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now() - throughput_cal_start).count();
+          auto temp = Chunk(pkt_temp);
+          uint32_t pkt_frame_id = temp( 10, 4 ).le32();
+
+          //initialize
+          if(current_send_frame_id==-1){
+            current_send_frame_id = pkt_frame_id;
+            frame_throughput_cal_start = std::chrono::system_clock::now();
+            frame_data_size = 0;
+          }
+
+          if((pkt_frame_id != current_send_frame_id)){
+            current_send_frame_id = pkt_frame_id;
+            int frame_send_time = duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now() - frame_throughput_cal_start).count();
+            frame_send_throughput = (((frame_data_size/pow(1024.0,2))*8)/frame_send_time)*1000;
+            cout << "[frame_send_throughput]:"<< frame_send_throughput<<endl;
+            frame_throughput_cal_start = std::chrono::system_clock::now();
+            frame_data_size = 0;
+          }else{
+            frame_data_size+=pkt_temp.length();
+          }
+          
+          int timeCount = duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now() - throughput_cal_start).count();
           if(timeCount>throughput_cal_period){
             //calculate the throughput 
             throughput_cal_start = std::chrono::system_clock::now();
-            Throughput = ((data_size/pow(1024.0,2))*8)/(throughput_cal_period/1000);
-            cout << "[throughput]:" << Throughput << endl;
+            Throughput = (((data_size/pow(1024.0,2))*8)/throughput_cal_period)*1000;
+            cout << "[send_throughput]:" << Throughput << endl;
             data_size = pkt_temp.length();
           }else{
             data_size += pkt_temp.length();
