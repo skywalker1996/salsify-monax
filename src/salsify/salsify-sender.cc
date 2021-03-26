@@ -679,7 +679,7 @@ poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
 
       auto output = move( good_outputs[ best_output_index ] );
 
-      cout<<"[final_size]:" << good_outputs[ best_output_index ].frame.size() << endl;
+      cout<<"[final_size]:" << output.frame.size() << endl;
 
 
       uint32_t target_minihash = output.encoder.minihash();
@@ -722,6 +722,7 @@ poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
         inter_send_delay = CC_Monax.getSndPeriod();
       }else{
         inter_send_delay = min( 2000u, max( 500u, avg_delay / 5 ) );
+        // inter_send_delay = 10u;
         cout << "[sendperiod]:" << inter_send_delay << endl;
       }
       
