@@ -57,9 +57,24 @@
 
 #include "monax.hh"
 
+#include <grpcpp/grpcpp.h>
+#include <grpcpp/health_check_service_interface.h>
+#include <grpcpp/ext/proto_server_reflection_plugin.h>
+#include "AppServer.grpc.pb.h"
+// #include "AppServer.pb.h"
+
+
 using namespace std;
 using namespace std::chrono;
 using namespace PollerShortNames;
+
+using grpc::Server;
+using grpc::ServerBuilder;
+using grpc::ServerContext;
+using grpc::Status;
+using AppServer::AppRequest;
+using AppServer::AppReply;
+using AppServer::AlgoServer;
 
 class AverageEncodingTime
 {

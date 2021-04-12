@@ -1,9 +1,10 @@
-
 AM_CPPFLAGS = -I$(srcdir)/../util -I$(srcdir)/../decoder -I$(srcdir)/../display -I$(srcdir)/../input -I$(srcdir)/../encoder -I$(srcdir)/../net $(X264_CFLAGS) $(CXX11_FLAGS) `pkg-config opencv4 --cflags` 
 AM_CXXFLAGS = $(PICKY_CXXFLAGS) $(NODEBUG_CXXFLAGS)
 USOCKET_CPPFLAGS = -I$(srcdir)/../uWebsockets/uSockets/src
 JSONXX_CPPFLAGS = -I$(srcdir)/../util/jsonxx
 JSONCPP_CPPFLAGS = -I$(srcdir)/../util/jsoncpp
+
+GRPC_CPPFLAGS = -I/home/librah/.local/include
 
 AM_LDFLAGS = $(STATIC_BUILD_FLAG)
 BASE_LDADD = ../input/libalfalfainput.a ../decoder/libalfalfadecoder.a ../util/libalfalfautil.a $(X264_LIBS) $(JPEG_LIBS)
@@ -18,8 +19,13 @@ endif
 bin_PROGRAMS = salsify-sender fake-webcam $(VP8PLAY_BUILD)
 
 salsify_sender_SOURCES = salsify-sender.cc
-salsify_sender_LDADD = ../net/libnet.a ../encoder/libalfalfaencoder.a $(BASE_LDADD)
-salsify_sender_LDFLAGS = -pthread
+salsify_sender_CPPFLAGS = $(AM_CPPFLAGS) $(JSONXX_CPPFLAGS) $(JSONCPP_CPPFLAGS) $(GRPC_CPPFLAGS) $(GLU_CFLAGS) $(GLEW_CFLAGS) $(GLFW3_CFLAGS)  
+salsify_sender_LDADD = ../net/libnet.a ../encoder/libalfalfaencoder.a $(BASE_LDADD) 
+
+salsify_sender_LDFLAGS = -L/usr/local/lib -L/home/librah/.local/lib \
+                            -pthread \
+                            -Wl,--no-as-needed -lgrpc++_reflection -Wl,--as-needed\
+                            -ldl
 
 salsify_receiver_SOURCES = salsify-receiver.cc
 salsify_receiver_CPPFLAGS = $(AM_CPPFLAGS) $(JSONXX_CPPFLAGS) $(JSONCPP_CPPFLAGS) $(USOCKET_CPPFLAGS) $(OPENCV_CPPFLAGS) $(GLU_CFLAGS) $(GLEW_CFLAGS) $(GLFW3_CFLAGS) 

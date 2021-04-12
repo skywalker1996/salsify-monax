@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/home/librah/Desktop/workspace/opencv/**"
+                "/home/librah/Desktop/workspace/opencv/**",
+                "/home/librah/.local/**"
                 
             ],
             "defines": [],

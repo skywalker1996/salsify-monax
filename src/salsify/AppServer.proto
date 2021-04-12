@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package AppServer;
+
+// The service definition.
+service AlgoServer {
+  // Sends a greeting
+  rpc Request (AppRequest) returns (AppReply) {}
+}
+
+// The request message containing the user's name.
+message AppRequest {
+  string request = 1;
+}
+
+// The response message containing the greetings
+message AppReply {
+  string response = 1;
+}
