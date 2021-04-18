@@ -76,7 +76,7 @@ double recv_throughput;
 double frame_loss_rate = 0.0;
 
 std::chrono::system_clock::time_point throughput_cal_start = system_clock::now();
-const int throughput_cal_period = 100;  //ms
+const int throughput_cal_period = 1000;  //ms
 int data_size = 0;  //bytes 
 
 
@@ -277,6 +277,8 @@ int main( int argc, char *argv[] )
   bool fullscreen = false;
   bool verbose = false;
 
+  std::string trace;
+
 
   const option command_line_options[] = {
     { "fullscreen", no_argument, nullptr, 'f' },
@@ -311,6 +313,7 @@ int main( int argc, char *argv[] )
     return EXIT_FAILURE;
   }
 
+
   /* choose a random connection_id */
   const uint16_t connection_id = 1337; // ezrand();
   cerr << "Connection ID: " << connection_id << endl;
@@ -340,7 +343,6 @@ int main( int argc, char *argv[] )
   std::chrono::system_clock::time_point frame_throughput_cal_start;
   int frame_data_size = 0; //bytes
   double frame_recv_throughput = 0.0;
-
 
 
   /*end to end delay */

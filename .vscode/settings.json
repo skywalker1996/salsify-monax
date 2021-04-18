@@ -71,7 +71,8 @@
         "cfenv": "cpp",
         "valarray": "cpp",
         "*.ipp": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "forward_list": "cpp"
     },
     "python.pythonPath": "/usr/bin/python"
 }

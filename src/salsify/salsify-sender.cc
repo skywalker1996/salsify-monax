@@ -57,10 +57,10 @@
 
 #include "monax.hh"
 
-#include <grpcpp/grpcpp.h>
-#include <grpcpp/health_check_service_interface.h>
-#include <grpcpp/ext/proto_server_reflection_plugin.h>
-#include "AppServer.grpc.pb.h"
+// #include <grpcpp/grpcpp.h>
+// #include <grpcpp/health_check_service_interface.h>
+// #include <grpcpp/ext/proto_server_reflection_plugin.h>
+// #include "AppServer.grpc.pb.h"
 // #include "AppServer.pb.h"
 
 
@@ -68,13 +68,52 @@ using namespace std;
 using namespace std::chrono;
 using namespace PollerShortNames;
 
-using grpc::Server;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
-using grpc::Status;
-using AppServer::AppRequest;
-using AppServer::AppReply;
-using AppServer::AlgoServer;
+// using grpc::Channel;
+// using grpc::Server;
+// using grpc::ServerBuilder;
+// using grpc::ServerContext;
+// using grpc::ClientContext;
+// using grpc::Status;
+// using AppServer::AppRequest;
+// using AppServer::AppReply;
+// using AppServer::AlgoServer;
+
+
+// class AlgoClient {
+//  public:
+//   AlgoClient(std::shared_ptr<Channel> channel)
+//       : stub_(AlgoServer::NewStub(channel)) {}
+
+//   // Assembles the client's payload, sends it and presents the response back
+//   // from the server.
+//   std::string RPCrequest(const std::string& user) {
+//     // Data we are sending to the server.
+//     AppRequest request;
+//     request.set_request(user);
+
+//     // Container for the data we expect from the server.
+//     AppReply reply;
+
+//     // Context for the client. It could be used to convey extra information to
+//     // the server and/or tweak certain RPC behaviors.
+//     ClientContext context;
+
+//     // The actual RPC.
+//     Status status = stub_->Request(&context, request, &reply);
+
+//     // Act upon its status.
+//     if (status.ok()) {
+//       return reply.response();
+//     } else {
+//       std::cout << status.error_code() << ": " << status.error_message()
+//                 << std::endl;
+//       return "RPC failed";
+//     }
+//   }
+
+//  private:
+//   std::unique_ptr<AlgoServer::Stub> stub_;
+// };
 
 class AverageEncodingTime
 {
@@ -250,6 +289,8 @@ int main( int argc, char *argv[] )
     abort();
   }
   
+  // AlgoClient algo_client(grpc::CreateChannel("192.168.0.114:50055", grpc::InsecureChannelCredentials()));
+
   Monax CC_Monax(5, 0.2, 1.0, 0.2, 0.2, 30.0, 500);
 
   // ofstream log_file;
@@ -340,7 +381,7 @@ int main( int argc, char *argv[] )
 
 
   std::chrono::system_clock::time_point throughput_cal_start = system_clock::now();
-  const int throughput_cal_period = 100;  //ms
+  const int throughput_cal_period = 1000;  //ms
   int data_size = 0;  //bytes 
 
   std::chrono::system_clock::time_point frame_throughput_cal_start;
@@ -720,6 +761,10 @@ poller.add_action( Poller::Action( encode_end_pipe.second, Direction::In,
       /* send 5x faster than packets are being received */
 
       if(rateControl == RateControl::monax){
+        // std::string msg("world");
+        // std::string reply = algo_client.RPCrequest(msg);
+        // std::cout << "[RPC]:" << reply << std::endl;  
+
         CC_Monax.setRealRtt(AvgRTT);
         CC_Monax.setDeliveryRate(Throughput);
         if(!cumulative_fpf.empty()){

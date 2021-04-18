@@ -136,8 +136,8 @@ async def agent(websocket, path):
 			res = {}
 			res['cmd'] = 'initialize'
 			res['result'] = 'success'
-			res['traces'] = traces
-			res['videos'] = videos
+			res['traces'] = [trace for trace in traces if(len(trace.split('.'))>1 and trace.split('.')[1]=="log")]
+			res['videos'] = [vid for vid in videos if(len(vid.split('.'))>1 and vid.split('.')[1]=="mp4")]
 			await websocket.send(json.dumps(res))
 
 		elif(commands['cmd']=='clean'):
