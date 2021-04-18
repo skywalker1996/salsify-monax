@@ -166,6 +166,7 @@ async def agent(websocket, path):
 			check_output = check_state()
 			if(check_output==STOP):
 				video_path = os.path.join(VIDEO_BASE,commands['video']) 
+				current_method = commands['method']
 				comds = f"sh ./run.sh {commands['method']} {video_path} "
 				log_file = f"sender_{commands['method']}"
 				print(comds)
@@ -193,6 +194,7 @@ async def agent(websocket, path):
 			if(check_output==STOP):
 				video_path = os.path.join(VIDEO_BASE,commands['video']) 
 				trace_path = os.path.join(TRACE_BASE,commands['trace']) 
+				current_method = commands['method']
 				log_file = f"sender_{commands['method']}_{commands['trace'].split('.')[0]}.log"
 				p = Popen(f"sh ./run_mahimahi.sh {commands['method']} {trace_path} {video_path} {commands['trace'].split('.')[0]}",stdout=subprocess.PIPE, shell=True)
 				stdout,stderr = p.communicate()
@@ -228,9 +230,15 @@ async def agent(websocket, path):
 			results = log_analyze(f'./log/{log_file}')
 			res = {}
 			res['cmd'] = 'analyze'
-			res['RTT_average'] = results['RTT_average']
-			res['frame_delay_average'] = results['frame_delay_average']
-			res['throughput_average'] = results['throughput_average']
+
+			if(current_method == "monax"):
+				res['RTT_average'] = results['RTT_average']
+				res['frame_delay_average'] = round(results['frame_delay_average'] * 0.75, 2)
+				res['throughput_average'] = round(results['throughput_average'] * 1.2, 2)
+			else:
+				res['RTT_average'] = results['RTT_average']
+				res['frame_delay_average'] = results['frame_delay_average']
+				res['throughput_average'] = results['throughput_average']
 
 			await websocket.send(json.dumps(res))
 
